@@ -1,0 +1,58 @@
+name: Pull request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches:
+      - main
+      - releases/*
+
+env:
+  NODE_OPTIONS: '--max-old-space-size=8192'
+jobs:
+  preflight-check:
+    # Prevents running the workflow when a PR is marked as draft.
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check if PR is draft
+        id: check
+        run: |
+          if [[ "${{ github.event.pull_request.draft }}" == "true" ]]; then
+            skip=true
+          else
+            skip=false
+          fi
+          echo "skip=${skip}" >> $GITHUB_OUTPUT
+          echo "skip=${skip}"
+  lint-and-test:
+    needs: preflight-check
+    if: needs.preflight-check.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODEJS_VERSION }}
+      - run: npm install --immutable
+      - run: npm run lint
+      - run: npm run test --passWithNoTests
+  build:
+    needs: preflight-check
+    if: needs.preflight-check.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODEJS_VERSION }}
+      - run: npm install --immutable
+      - run: npm run build

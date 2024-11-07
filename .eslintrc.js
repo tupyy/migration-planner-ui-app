@@ -16,7 +16,6 @@ module.exports = {
     },
   ],
   rules: {
-    "requireConfigFile": "off",
     'sort-imports': [
       'error',
       {

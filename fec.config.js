@@ -1,5 +1,7 @@
+const path = require('path');
+
 module.exports = {
-  appUrl: '/staging/starter',
+  appUrl: '/openshift/assisted-migration-app',
   debug: true,
   useProxy: true,
   proxyVerbose: true,
@@ -9,7 +11,7 @@ module.exports = {
    * If the dash character is present, you will have add a camelCase version of it to the sassPrefix.
    * If it does not contain the dash character, remove this configuration.
    */
-  sassPrefix: '.frontend-starter-app, .frontendStarterApp',
+  sassPrefix: '.assisted-migration-app, .assistedMigrationApp',
   /**
    * Change to false after your app is registered in configuration files
    */
@@ -18,8 +20,11 @@ module.exports = {
    * Add additional webpack plugins
    */
   plugins: [],
-  _unstableHotReload: process.env.HOT === 'true',
+  hotReload: process.env.HOT === 'true',
   moduleFederation: {
+    exposes: {
+      './RootApp': path.resolve(__dirname, './src/components/RootApp.tsx'),
+    },
     exclude: ['react-router-dom'],
     shared: [
       {

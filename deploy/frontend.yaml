@@ -2,31 +2,31 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: frontend-starter-app
+  name: assisted-migration-app
 objects:
   - apiVersion: cloud.redhat.com/v1alpha1
     kind: Frontend
     metadata:
-      name: frontend-starter-app
+      name: assisted-migration-app
     spec:
       API:
         versions:
           - v1
       envName: ${ENV_NAME}
-      title: Starter App
-      deploymentRepo: https://github.com/RedHatInsights/frontend-starter-app
+      title: Assisted Migration
+      deploymentRepo: https://gitlab.cee.redhat.com/assisted-migration/assisted-migration-app
       frontend:
         paths:
-          - /apps/frontend-starter-app
+          - /apps/assisted-migration-app
       image: ${IMAGE}:${IMAGE_TAG}
 
       module:
-        manifestLocation: '/apps/frontend-starter-app/fed-mods.json'
+        manifestLocation: '/apps/assisted-migration-app/fed-mods.json'
         modules:
-          - id: 'overview'
+          - id: 'assisted-migration-app'
             module: './RootApp'
             routes:
-              - pathname: /staging/starter
+              - pathname: /openshift/assisted-migration-app
 
 parameters:
   - name: ENV_NAME
@@ -34,4 +34,4 @@ parameters:
   - name: IMAGE_TAG
     required: true
   - name: IMAGE
-    value: quay.io/cloudservices/frontend-starter-app
+    value: quay.io/app-sre/assisted-migration-app

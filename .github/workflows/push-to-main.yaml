@@ -1,0 +1,57 @@
+name: Push to main or release tag
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+env:
+  QUAY_ORG: quay.io/edge-infrastructure
+  QUAY_REPO: assisted-installer-ui
+
+jobs:
+  preflight-check:
+    # Prevents running the workflow when a brand-new tag points to the same commit as the main branch
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if a tag points to the same commit as the main branch
+        id: check
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]] && [[ "${GITHUB_SHA}" == "$(git rev-parse origin/main)" ]]; then
+            skip=true
+          else
+            skip=false
+          fi
+          echo "skip=${skip}" >> $GITHUB_OUTPUT
+          echo "skip=${skip}"
+  lint-and-test:
+    needs: preflight-check
+    if: needs.preflight-check.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODEJS_VERSION }}
+      - run: npm install --immutable
+      - run: npm run lint
+      - run: npm run test --passWithNoTests
+  build:
+    needs: preflight-check
+    if: needs.preflight-check.outputs.skip == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.NODEJS_VERSION }}
+      - run: npm install --immutable
+      - run: npm run build

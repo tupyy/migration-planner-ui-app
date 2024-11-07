@@ -1,6 +1,6 @@
 {
-  "name": "frontend-starter-app",
-  "version": "1.2.0",
+  "name": "assisted-migration-app",
+  "version": "0.0.1",
   "private": false,
   "engines": {
     "node": ">=18.0.0",
@@ -8,15 +8,18 @@
   },
   "scripts": {
     "build": "fec build",
+    "clean": "rimraf node_modules dist .cache",
     "deploy": "npm-run-all build lint test",
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint src",
     "lint:js:fix": "eslint src --fix",
     "patch:hosts": "fec patch-etc-hosts",
-    "start": "HOT=true fec dev",
-    "test": "jest",
+    "start": "HOT=true fec dev --clouddotEnv=stage --uiEnv=stable",
+    "start:federated": "fec static",
+    "test": "TZ=UTC jest --verbose --no-cache --passWithNoTests",
     "postinstall": "ts-patch install && rimraf .cache",
-    "verify": "npm-run-all build lint test"
+    "verify": "npm-run-all build lint test",
+    "prettier": "prettier --write src"
   },
   "dependencies": {
     "@patternfly/react-core": "^5.4.1",
@@ -53,6 +56,6 @@
     "webpack-bundle-analyzer": "4.10.2"
   },
   "insights": {
-    "appname": "frontend-starter-app"
+    "appname": "assisted-migration-app"
   }
 }

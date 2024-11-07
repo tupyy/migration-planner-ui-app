@@ -23,3 +23,6 @@ coverage
 # cache folder
 .cache
 .swc
+
+.yalc
+yalc.lock
