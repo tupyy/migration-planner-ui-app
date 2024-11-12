@@ -1,5 +1,5 @@
 {
-  "name": "assisted-migration-app",
+  "name": "migration-assessment",
   "version": "0.0.1",
   "private": false,
   "engines": {
@@ -56,6 +56,6 @@
     "webpack-bundle-analyzer": "4.10.2"
   },
   "insights": {
-    "appname": "assisted-migration-app"
+    "appname": "migration-assessment"
   }
 }

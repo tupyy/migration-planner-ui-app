@@ -4,9 +4,9 @@
 # Export vars for helper scripts to use
 # --------------------------------------------
 # name of app-sre "application" folder this component lives in; needs to match for quay
-export COMPONENT="assisted-migration"
+export COMPONENT="migration-assessment"
 # Needs to match the quay repo name set by app.yaml in app-interface
-export IMAGE="quay.io/app-sre/assisted-migration-app"
+export IMAGE="quay.io/app-sre/migration-assessment"
 export WORKSPACE=${WORKSPACE:-$APP_ROOT} # if running in jenkins, use the build's workspace
 export APP_ROOT=$(pwd)
 export IMAGE_TAG=$(git rev-parse HEAD)
