@@ -31,6 +31,5 @@ parameters:
   - name: ENV_NAME
     required: true
   - name: IMAGE_TAG
-    required: true
   - name: IMAGE
     value: quay.io/app-sre/migration-assessment
