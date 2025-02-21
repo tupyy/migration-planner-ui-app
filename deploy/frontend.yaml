@@ -19,7 +19,6 @@ objects:
         paths:
           - /apps/migration-assessment
       image: ${IMAGE}:${IMAGE_TAG}
-
       module:
         manifestLocation: '/apps/migration-assessment/fed-mods.json'
         modules:
