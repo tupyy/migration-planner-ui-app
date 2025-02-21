@@ -1,4 +1,4 @@
-# migration-assessment ui app
+# migration-assessment
 Install npm dependencies and start the stage stable server.
 
 ```
