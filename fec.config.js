@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  appUrl: '/openshift/assisted-migration-app',
+  appUrl: '/openshift/migration-assessment',
   debug: true,
   useProxy: true,
   proxyVerbose: true,
