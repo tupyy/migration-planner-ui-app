@@ -17,10 +17,10 @@ objects:
       deploymentRepo: https://gitlab.cee.redhat.com/assisted-migration/migration-assessment-app
       frontend:
         paths:
-          - /apps/migration-assessment
+          - /apps/assisted-migration-app
       image: ${IMAGE}:${IMAGE_TAG}
       module:
-        manifestLocation: '/apps/migration-assessment/fed-mods.json'
+        manifestLocation: '/apps/assisted-migration-app/fed-mods.json'
         modules:
           - id: 'migration-assessment'
             module: './RootApp'
