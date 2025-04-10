@@ -14,7 +14,7 @@ import { useAccountsAccessToken } from "./hooks/useAccountsAccessToken";
 
 function getConfiguredContainer(accessToken: string): Container {
   const plannerApiConfig = new Configuration({
-    basePath: `https://migration-planner-assisted-migration-stage.apps.crcs02ue1.urby.p1.openshiftapps.com`,
+    basePath: "/planner",
     headers: {
       Authorization: `Bearer ${accessToken}`, // Use access token here
     },
