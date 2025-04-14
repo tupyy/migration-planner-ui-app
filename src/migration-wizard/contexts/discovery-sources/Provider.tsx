@@ -47,11 +47,30 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
   const [createSourceState, createSource] = useAsyncFn(
     async (name: string, sshPublicKey: string) => {
-      const createdSource = await sourceApi.createSource({
-        sourceCreate: { name, sshPublicKey }
-      });
-      return createdSource;
-    },
+      try {
+        return await sourceApi.createSource({ sourceCreate: { name, sshPublicKey } });
+      } catch (error: unknown) {
+        console.error("Error creating source:", error);
+  
+        if (typeof error === "object" && error !== null && "response" in error) {
+          const response = (error as { response: Response }).response;
+  
+          try {
+            const errorText = await response.text(); // Read as text first
+            try {
+              const errorData = JSON.parse(errorText); // Attempt to parse JSON
+              return errorData?.message || "API error occurred.";
+            } catch {
+              return errorText || "Failed to parse API error response.";
+            }
+          } catch {
+            return "Error response could not be read.";
+          }
+        }
+  
+        return "Unexpected error occurred while creating the source.";
+      }
+    }
   );
 
   const [downloadSourceState, downloadSource] = useAsyncFn(
@@ -60,6 +79,13 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       anchor.download = sourceName + '.ova';
 
       const newSource = await createSource(sourceName, sourceSshKey);
+
+      if (!newSource?.id) {
+        throw new Error(
+          `Failed to create source. Response: ${JSON.stringify(newSource, null, 2)}`
+        );
+      }
+      
       await imageApi.headImage({ id: newSource.id });
       const imageUrl = await imageApi.getSourceDownloadURL({ id: newSource.id })
       downloadSourceState.loading = true;
