@@ -48,7 +48,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const [createSourceState, createSource] = useAsyncFn(
     async (name: string, sshPublicKey: string) => {
       const createdSource = await sourceApi.createSource({
-        sourceCreate: { name, sshPublicKey, proxy: { httpsUrl: 'http://squid.corp.redhat.com:3128' }}
+        sourceCreate: { name, sshPublicKey }
       });
       return createdSource;
     },
