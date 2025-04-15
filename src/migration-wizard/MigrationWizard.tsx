@@ -89,13 +89,23 @@ export const MigrationWizard: React.FC = () => {
       );
       if (foundSource) {
         setSourceSelected(foundSource);
+        if (foundSource.onPremises){
+          setIsDiscoverySourceUpToDate(true);
+        }
+        else {
         setIsDiscoverySourceUpToDate( 
           foundSource.agent && foundSource.agent.status === "up-to-date" || foundSource.name === 'Example');      
+        }
       } else {
         if (firstSource) {
           setSourceSelected(firstSource);
+          if (firstSource.onPremises){
+            setIsDiscoverySourceUpToDate(firstSource.onPremises);
+          }
+          else{
           setIsDiscoverySourceUpToDate( 
-            firstSource.agent && firstSource.agent.status === "up-to-date" || firstSource.name === 'Example');     
+            firstSource.agent && firstSource.agent.status === "up-to-date" || firstSource.name === 'Example'); 
+          }
         }  
         else {
           setSourceSelected(undefined);
@@ -115,7 +125,7 @@ export const MigrationWizard: React.FC = () => {
             isCancelHidden={true}
             isNextDisabled={
               !isDiscoverySourceUpToDate ||
-              sourceSelected === null
+              sourceSelected === null 
             }
             isBackDisabled={true}
           />
@@ -128,8 +138,8 @@ export const MigrationWizard: React.FC = () => {
         id="discover-step"
         footer={<CustomWizardFooter isCancelHidden={true} />}
         isDisabled={
-          (sourceSelected?.agent && sourceSelected?.agent.status !== "up-to-date") ||
-          sourceSelected === null  || sourceSelected?.agent === undefined
+          ( !isDiscoverySourceUpToDate ||
+            sourceSelected === null )
         }
       >
         <DiscoveryStep />
@@ -145,8 +155,8 @@ export const MigrationWizard: React.FC = () => {
           />
         }
         isDisabled={
-          (sourceSelected?.agent && sourceSelected?.agent.status !== "up-to-date") ||
-          sourceSelected === null || sourceSelected?.agent === undefined
+          ( !isDiscoverySourceUpToDate ||
+            sourceSelected === null )
         }
       >
         <PrepareMigrationStep />

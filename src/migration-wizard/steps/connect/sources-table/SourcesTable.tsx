@@ -169,7 +169,7 @@ export const SourcesTable: React.FC = () => {
                         }}
                       />
                     )}
-                     {!source?.agent && source?.name !== "Example"   && (
+                     {(!source?.agent || source?.onPremises) && source?.name !== "Example"   && (
                       <UploadInventoryAction
                       sourceId={source.id}
                       discoverySourcesContext={discoverySourcesContext}
