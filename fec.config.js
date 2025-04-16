@@ -4,16 +4,16 @@ module.exports = {
   appUrl: '/openshift/migration-assessment',
   debug: true,
   useProxy: true,
-  customProxy: [
-    {
-      context: ['/planner'],
-      //target: 'http://127.0.0.1:3443',
-      target: 'https://migration-planner-assisted-migration-stage.apps.crcs02ue1.urby.p1.openshiftapps.com',
-      secure: false,
-      pathRewrite: { '^/planner/': '/' },
-      changeOrigin: true
-    },
-  ],
+  //customProxy: [
+  //  {
+  //    context: ['/planner'],
+  //    //target: 'http://127.0.0.1:3443',
+  //    target: 'https://migration-planner-assisted-migration-stage.apps.crcs02ue1.urby.p1.openshiftapps.com',
+  //    secure: false,
+  //    pathRewrite: { '^/planner/': '/' },
+  //    changeOrigin: true
+  //  },
+  //],
   proxyVerbose: true,
   sassPrefix: '.assisted-migration-app, .assistedMigrationApp',
   interceptChromeConfig: false,
