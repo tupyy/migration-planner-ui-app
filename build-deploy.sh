@@ -10,7 +10,7 @@ export IMAGE="quay.io/app-sre/migration-assessment"
 export WORKSPACE=${WORKSPACE:-$APP_ROOT} # if running in jenkins, use the build's workspace
 export APP_ROOT=$(pwd)
 export IMAGE_TAG=$(git rev-parse --short=7 HEAD)
-COMMON_BUILDER=https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/master
+COMMON_BUILDER=https://raw.githubusercontent.com/machacekondra/insights-frontend-builder-common/master
 
 set -exv
 # source is preferred to | bash -s in this case to avoid a subshell
