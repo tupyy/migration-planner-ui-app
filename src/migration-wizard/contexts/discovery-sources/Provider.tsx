@@ -164,7 +164,6 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
   const [updateSourceState, updateSource] = useAsyncFn(
     async (sourceId: string, jsonValue: string) => {
-      console.log(jsonValue);
       const updatedSource = sourceApi.updateSource({
         id: sourceId,
         sourceUpdateOnPrem: SourceUpdateOnPremFromJSON(jsonValue),

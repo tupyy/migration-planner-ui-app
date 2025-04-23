@@ -12,7 +12,7 @@ import { AgentStatusView } from "./AgentStatusView";
 import { UploadInventoryAction } from "./actions/UploadInventoryAction";
 import { useDiscoverySources } from "../../../contexts/discovery-sources/Context";
 
-export const SourcesTable: React.FC = () => {
+export const SourcesTable:  React.FC<{ onUploadResult?: (message: string, isError?: boolean) => void; onUploadSuccess?: () => void; }> = ({ onUploadResult,onUploadSuccess }) => {
   const discoverySourcesContext = useDiscoverySources();
   const prevSourcesRef = useRef<typeof discoverySourcesContext.sources>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -128,7 +128,7 @@ export const SourcesTable: React.FC = () => {
                     />
                   </Td>
                   <Td dataLabel={Columns.CredentialsUrl}>
-                     {agent!==undefined ? (
+                     {agent!==undefined && !source.onPremises ? (
                           <Link to={agent.credentialUrl} target="_blank">
                             {agent.credentialUrl}
                           </Link>
@@ -138,7 +138,7 @@ export const SourcesTable: React.FC = () => {
                       }
                   </Td>
                   <Td dataLabel={Columns.Status}>
-                    <AgentStatusView status={agent ? agent.status : 'not-connected'} statusInfo={agent ? agent.statusInfo: 'Not connected'} credentialUrl={agent ? agent.credentialUrl:''}/>
+                    <AgentStatusView status={agent ? agent.status : 'not-connected'} statusInfo={agent ? agent.statusInfo: 'Not connected'} credentialUrl={agent ? agent.credentialUrl:''} uploadedManually={source?.onPremises && source?.inventory!==undefined}/>
                   </Td>
                   <Td dataLabel={Columns.Hosts}>
                     {(source?.inventory?.infra.totalHosts ?? VALUE_NOT_AVAILABLE)}
@@ -173,6 +173,10 @@ export const SourcesTable: React.FC = () => {
                       <UploadInventoryAction
                       sourceId={source.id}
                       discoverySourcesContext={discoverySourcesContext}
+                      onUploadResult={(message, isError) => {
+                        onUploadResult?.(message, isError);
+                      }}
+                      onUploadSuccess={onUploadSuccess}
                     />
                      )}
                   </Td>

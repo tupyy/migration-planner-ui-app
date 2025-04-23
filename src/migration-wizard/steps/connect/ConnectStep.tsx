@@ -39,6 +39,8 @@ export const ConnectStep: React.FC = () => {
   const [firstSource, ..._otherSources] = discoverySourcesContext.sources ?? [];
   const [sourceSelected, setSourceSelected] = React.useState<Source>();
   const [isOvaDownloading, setIsOvaDownloading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [isUploadError, setIsUploadError] = useState(false);
 
   useEffect(() => {
     if (discoverySourcesContext.sourceSelected) {
@@ -60,6 +62,16 @@ export const ConnectStep: React.FC = () => {
     discoverySourcesContext.sources,
     firstSource,
   ]);
+
+  useEffect(() => {
+    if (uploadMessage) {
+      const timeout = setTimeout(() => {
+        setUploadMessage(null);
+      }, 5000); // se oculta después de 5 segundos
+
+      return () => clearTimeout(timeout); // limpia el timeout si el componente se desmonta o cambia el mensaje
+    }
+  }, [uploadMessage]);
 
   return (
     <Stack hasGutter>
@@ -107,7 +119,15 @@ export const ConnectStep: React.FC = () => {
                 </Text>
               </TextContent>
             </PanelHeader>
-            <SourcesTable />
+            <SourcesTable
+              onUploadResult={(message, isError) => {
+                setUploadMessage(message);
+                setIsUploadError(isError ?? false);
+              }}
+              onUploadSuccess={async () => {
+                await discoverySourcesContext.listSources();
+              }}
+            />
           </PanelMain>
         </Panel>
       </StackItem>
@@ -133,9 +153,15 @@ export const ConnectStep: React.FC = () => {
                 .value as string;
               const sshKey = form['discoverySourceSshKey'].value as string;
               setIsOvaDownloading(true); // Start showing the alert
-              const httpProxy = form['httpProxy']? form['httpProxy'].value as string:'';
-              const httpsProxy =  form['httpsProxy'] ? form['httpsProxy'].value as string:'';
-              const noProxy = form['noProxy'] ? form['noProxy'].value as string:'';
+              const httpProxy = form['httpProxy']
+                ? (form['httpProxy'].value as string)
+                : '';
+              const httpsProxy = form['httpsProxy']
+                ? (form['httpsProxy'].value as string)
+                : '';
+              const noProxy = form['noProxy']
+                ? (form['noProxy'].value as string)
+                : '';
               await discoverySourcesContext.downloadSource(
                 environmentName,
                 sshKey,
@@ -192,20 +218,35 @@ export const ConnectStep: React.FC = () => {
           )}
       </StackItem>
       <StackItem>
-        {hasSources && !sourceSelected?.agent && sourceSelected?.name !== 'Example' && (
-          <Alert isInline variant="custom" title="Environment not connected">
-            <TextContent>
-              <Text>
-                The selected environment is not connected, if you have a
-                discovery file click the link below to upload it.
-              </Text>
-            </TextContent>
-            <UploadInventoryAction
-              discoverySourcesContext={discoverySourcesContext}
-              sourceId={sourceSelected?.id ?? ''}
-              asLink
-            />
-          </Alert>
+        {hasSources &&
+          !sourceSelected?.agent &&
+          sourceSelected?.name !== 'Example' && (
+            <Alert isInline variant="custom" title="Environment not connected">
+              <TextContent>
+                <Text>
+                  The selected environment is not connected, if you have a
+                  discovery file click the link below to upload it.
+                </Text>
+              </TextContent>
+              <UploadInventoryAction
+                discoverySourcesContext={discoverySourcesContext}
+                sourceId={sourceSelected?.id ?? ''}
+                asLink
+                onUploadResult={(message, isError) => {
+                  setUploadMessage(message ?? null);
+                  setIsUploadError(isError ?? false);
+                }}
+              />
+            </Alert>
+          )}
+      </StackItem>
+      <StackItem>
+        {uploadMessage && (
+          <Alert
+            isInline
+            variant={isUploadError ? 'danger' : 'success'}
+            title={uploadMessage}
+          />
         )}
       </StackItem>
     </Stack>
