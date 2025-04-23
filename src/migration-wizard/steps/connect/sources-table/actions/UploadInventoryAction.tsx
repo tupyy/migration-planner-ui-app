@@ -6,51 +6,48 @@ interface UploadInventoryProps {
   discoverySourcesContext: DiscoverySources.Context;
   sourceId: string;
   asLink?: boolean;
+  onUploadResult?: (message?: string, isError?: boolean) => void;
+  onUploadSuccess?: () => void;
 }
 
 export const UploadInventoryAction: React.FC<UploadInventoryProps> = ({
   discoverySourcesContext,
   sourceId,
-  asLink
+  asLink,
+  onUploadResult,
+  onUploadSuccess
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  const handleModalClose = () => setIsModalOpen(false);
-
-  useEffect(() => {
-    if (discoverySourcesContext.errorUpdatingSource) {
-      setModalMessage("Failed to import inventory. Please check the file format.");
-      setIsModalOpen(true);
-    }
-  }, [discoverySourcesContext.errorUpdatingSource]);
-
   const handleUploadSource = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
     input.style.visibility = "hidden";
 
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     input.onchange = async (event: Event) => {
       const file = (event.target as HTMLInputElement)?.files?.[0];
       if (!file) return;
 
       const maxSize = 12582912; // 12 MiB
       if (file.size > maxSize) {
-        setModalMessage("The file is too big. Upload a file up to 12 MiB.");
-        setIsModalOpen(true);
+        onUploadResult?.("The file is too big. Upload a file up to 12 MiB.", true);
         return;
       }
 
       try {
         const content = await file.text();
         await discoverySourcesContext.updateSource(sourceId, JSON.parse(content));
-        setModalMessage("Inventory successfully uploaded.");        
+        if (discoverySourcesContext.errorUpdatingSource){
+          onUploadResult?.(discoverySourcesContext.errorUpdatingSource.message, true);
+        }
+        else {
+          onUploadResult?.("Discovery file uploaded successfully", false);
+        }
+      } catch (err) {
+        onUploadResult?.("Failed to import inventory. Please check the file format.", true);
       } finally {
-        setIsModalOpen(true);
         input.remove();
+        await discoverySourcesContext.listSources();
+        onUploadSuccess?.();
       }
     };
 
@@ -58,32 +55,17 @@ export const UploadInventoryAction: React.FC<UploadInventoryProps> = ({
     input.click();
   }, [discoverySourcesContext, sourceId]);
 
- 
-  return (
-    <>
-    {asLink ? (
-        <Button variant="link" onClick={handleUploadSource} style={{padding:0, marginTop: '5px'}}>
-          Upload discovery file
-        </Button>
-      ) : (
-        <Tooltip content="Upload">
-          <Button variant="plain" onClick={handleUploadSource}>
-            <Icon size="md" isInline>
-              <UploadIcon />
-            </Icon>
-          </Button>
-        </Tooltip>
-      )}
-      <Modal
-        title="Upload Discovery File Status"
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        variant="small"
-      >
-        <p>{modalMessage}</p>
-      </Modal>
-    </>
+  return asLink ? (
+    <Button variant="link" onClick={handleUploadSource} style={{ padding: 0, marginTop: '5px' }}>
+      Upload discovery file
+    </Button>
+  ) : (
+    <Tooltip content="Upload">
+      <Button variant="plain" onClick={handleUploadSource}>
+        <Icon size="md" isInline>
+          <UploadIcon />
+        </Icon>
+      </Button>
+    </Tooltip>
   );
 };
-
-UploadInventoryAction.displayName = "UploadInventoryAction";

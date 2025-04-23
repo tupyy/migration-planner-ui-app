@@ -27,6 +27,7 @@ export namespace AgentStatusView {
     status: Agent["status"];
     statusInfo?: Agent["statusInfo"];
     credentialUrl?: Agent["credentialUrl"];
+    uploadedManually?: boolean;
   };
 }
 
@@ -51,8 +52,7 @@ const StatusInfoWaitingForCredentials: React.FC<{
 };
 
 export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
-  const { status, statusInfo, credentialUrl } = props;
-
+  const { status, statusInfo, credentialUrl, uploadedManually } = props;
   const statusView = useMemo(() => {
     // eslint-disable-next-line prefer-const
     let fake: Agent["status"] | null = null;
@@ -69,7 +69,7 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
               <DisconnectedIcon />
             </Icon>
           ),
-          text: "Not connected",
+          text: uploadedManually ? "Uploaded manually": "Not connected",
         };
       case "waiting-for-credentials":
         return {
@@ -108,7 +108,7 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
           text: "Ready",
         };
     }
-  }, [status]);
+  }, [status, uploadedManually]);
 
   return (
     <Split hasGutter style={{ gap: "0.66rem" }}>
