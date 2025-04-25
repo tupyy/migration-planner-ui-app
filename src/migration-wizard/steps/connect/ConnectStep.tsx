@@ -67,11 +67,21 @@ export const ConnectStep: React.FC = () => {
     if (uploadMessage) {
       const timeout = setTimeout(() => {
         setUploadMessage(null);
-      }, 5000); // se oculta después de 5 segundos
+      }, 5000); // dissapears after 5 seconds
 
-      return () => clearTimeout(timeout); // limpia el timeout si el componente se desmonta o cambia el mensaje
+      return () => clearTimeout(timeout); 
     }
   }, [uploadMessage]);
+
+  useEffect(() => {
+    if (isOvaDownloading) {
+      const timeout = setTimeout(() => {
+        setIsOvaDownloading(false);
+      }, 8000); // dissapears after 8 seconds
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isOvaDownloading]);
 
   return (
     <Stack hasGutter>
@@ -171,7 +181,6 @@ export const ConnectStep: React.FC = () => {
               );
               toggleDiscoverySourceSetupModal();
               await discoverySourcesContext.listSources();
-              setIsOvaDownloading(false); // Hide alert after everything is done
             }}
           />
         )}
