@@ -77,7 +77,7 @@ export const ConnectStep: React.FC = () => {
     if (isOvaDownloading) {
       const timeout = setTimeout(() => {
         setIsOvaDownloading(false);
-      }, 8000); // dissapears after 8 seconds
+      }, 5000); // dissapears after 5 seconds
 
       return () => clearTimeout(timeout);
     }
@@ -157,31 +157,10 @@ export const ConnectStep: React.FC = () => {
             isOpen={shouldShowDiscoverySourceSetupModal}
             onClose={toggleDiscoverySourceSetupModal}
             isDisabled={discoverySourcesContext.isDownloadingSource}
-            onSubmit={async (event) => {
-              const form = event.currentTarget;
-              const environmentName = form['discoveryEnvironmentName']
-                .value as string;
-              const sshKey = form['discoverySourceSshKey'].value as string;
-              setIsOvaDownloading(true); // Start showing the alert
-              const httpProxy = form['httpProxy']
-                ? (form['httpProxy'].value as string)
-                : '';
-              const httpsProxy = form['httpsProxy']
-                ? (form['httpsProxy'].value as string)
-                : '';
-              const noProxy = form['noProxy']
-                ? (form['noProxy'].value as string)
-                : '';
-              await discoverySourcesContext.downloadSource(
-                environmentName,
-                sshKey,
-                httpProxy,
-                httpsProxy,
-                noProxy,
-              );
-              toggleDiscoverySourceSetupModal();
+            onStartDownload={() => setIsOvaDownloading(true)}
+            onAfterDownload={async () => {
               await discoverySourcesContext.listSources();
-            }}
+            }}       
           />
         )}
       </StackItem>
