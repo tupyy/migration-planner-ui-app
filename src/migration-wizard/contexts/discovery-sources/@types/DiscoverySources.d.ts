@@ -13,7 +13,7 @@ declare namespace DiscoverySources {
     sourceSelected: Source;
     listSources: () => Promise<Source[]>;
     deleteSource: (id: string) => Promise<Source>;
-    downloadSource: (envName: string, sourceSshKey: string, httpProxy:string, httpsProxy:string, noProxy: string) => Promise<void>;
+    createDownloadSource: (envName: string, sourceSshKey: string, httpProxy:string, httpsProxy:string, noProxy: string) => Promise<void>;
     startPolling: (delay: number) => void;
     stopPolling: () => void;
     selectSource: (source: Source) => void;
@@ -31,5 +31,7 @@ declare namespace DiscoverySources {
     updateSource: (sourceId: string, jsonValue: string) => void;
     isUpdatingSource: boolean;
     errorUpdatingSource?: Error;
+    downloadSourceUrl?: string;
+    setDownloadUrl?: (url: string) => void
   };
 }

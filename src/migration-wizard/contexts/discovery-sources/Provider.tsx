@@ -22,6 +22,8 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
 
   const [sourcesLoaded, setSourcesLoaded] = useState(false);
 
+  const [downloadSourceUrl, setDownloadSourceUrl] = useState('');
+
   const sourceApi = useInjection<SourceApiInterface>(Symbols.SourceApi);
   const agentsApi = useInjection<AgentApiInterface>(Symbols.AgentApi);
   const imageApi = useInjection<ImageApiInterface>(Symbols.ImageApi);
@@ -75,11 +77,9 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     }
   );
 
-  const [downloadSourceState, downloadSource] = useAsyncFn(
+  const [downloadSourceState, createDownloadSource] = useAsyncFn(
     async (sourceName: string, sourceSshKey: string, httpProxy:string, httpsProxy:string, noProxy: string): Promise<void> => {
-      const anchor = document.createElement('a');
-      anchor.download = sourceName + '.ova';
-
+      
       const newSource = await createSource(sourceName, sourceSshKey, httpProxy, httpsProxy, noProxy);
 
       if (!newSource?.id) {
@@ -92,11 +92,11 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
       const imageUrl = await imageApi.getSourceDownloadURL({ id: newSource.id })
       downloadSourceState.loading = true;
 
-      anchor.href = imageUrl.url;
-      anchor.click();
-      anchor.remove();
+      setDownloadSourceUrl(imageUrl.url);
+      
     },
   );
+  
 
   const [isPolling, setIsPolling] = useState(false);
   const [pollingDelay, setPollingDelay] = useState<number | null>(null);
@@ -172,6 +172,10 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     },
   );
 
+  const setDownloadUrl = useCallback((url: string) => {
+    setDownloadSourceUrl('');
+  }, []);
+
   const ctx: DiscoverySources.Context = {
     sources: listSourcesState.value ?? [],
     isLoadingSources: listSourcesState.loading,
@@ -185,7 +189,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     isPolling,
     listSources,
     deleteSource,
-    downloadSource,
+    createDownloadSource,
     startPolling,
     stopPolling,
     sourceSelected: sourceSelected,
@@ -204,6 +208,8 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     updateSource,
     isUpdatingSource: updateSourceState.loading,
     errorUpdatingSource: updateSourceState.error,
+    downloadSourceUrl,
+    setDownloadUrl
   };
 
   return <Context.Provider value={ctx}>{children}</Context.Provider>;
