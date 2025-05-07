@@ -32,4 +32,4 @@ parameters:
     required: true
   - name: IMAGE_TAG
   - name: IMAGE
-    value: quay.io/app-sre/migration-assessment
+    required: true
