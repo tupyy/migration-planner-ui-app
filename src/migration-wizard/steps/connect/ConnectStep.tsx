@@ -22,6 +22,7 @@ import { Source } from '@migration-planner-ui/api-client/models';
 import { UploadInventoryAction } from './sources-table/actions/UploadInventoryAction';
 import { useDiscoverySources } from '../../contexts/discovery-sources/Context';
 import { SourcesTable } from './sources-table/SourcesTable';
+import { TroubleshootingModal } from './TroubleshootingModal';
 
 export const ConnectStep: React.FC = () => {
   const discoverySourcesContext = useDiscoverySources();
@@ -41,6 +42,7 @@ export const ConnectStep: React.FC = () => {
   const [isOvaDownloading, setIsOvaDownloading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [isUploadError, setIsUploadError] = useState(false);
+  const [isTroubleshootingOpen, setIsTroubleshootingOpen] = useState(false);
 
   useEffect(() => {
     if (discoverySourcesContext.sourceSelected) {
@@ -69,7 +71,7 @@ export const ConnectStep: React.FC = () => {
         setUploadMessage(null);
       }, 5000); // dissapears after 5 seconds
 
-      return () => clearTimeout(timeout); 
+      return () => clearTimeout(timeout);
     }
   }, [uploadMessage]);
 
@@ -108,6 +110,13 @@ export const ConnectStep: React.FC = () => {
             <ListItem>
               A link will appear below once the VM is running. Use this link to
               enter credentials and connect your environment.
+              <Button
+                variant="link"
+                isInline
+                onClick={() => setIsTroubleshootingOpen(true)}
+              >
+                (VM not showing up?)
+              </Button>{' '}
             </ListItem>
             <ListItem>
               When the connection is established, you will be able to proceed
@@ -160,7 +169,7 @@ export const ConnectStep: React.FC = () => {
             onStartDownload={() => setIsOvaDownloading(true)}
             onAfterDownload={async () => {
               await discoverySourcesContext.listSources();
-            }}       
+            }}
           />
         )}
       </StackItem>
@@ -237,6 +246,10 @@ export const ConnectStep: React.FC = () => {
           />
         )}
       </StackItem>
+      <TroubleshootingModal
+        isOpen={isTroubleshootingOpen}
+        onClose={() => setIsTroubleshootingOpen(false)}
+      />
     </Stack>
   );
 };
