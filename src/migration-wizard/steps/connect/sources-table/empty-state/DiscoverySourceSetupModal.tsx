@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   Button,
   ClipboardCopy,
   clipboardCopyFunc,
@@ -78,6 +79,7 @@ export const DiscoverySourceSetupModal: React.FC<
     setGeneratedUrl('');
     setSourceName('');
     discoverySourcesContext.setDownloadUrl('');
+    discoverySourcesContext.errorDownloadingSource = null;
   };
 
   const handleSubmit = useCallback<React.FormEventHandler<HTMLFormElement>>(
@@ -235,8 +237,14 @@ export const DiscoverySourceSetupModal: React.FC<
             </TextContent>
           )}
         </Form>
+        {discoverySourcesContext.errorDownloadingSource && (
+          <Alert isInline variant="danger" title="Add Environment error">
+            {discoverySourcesContext.errorDownloadingSource.message}
+          </Alert>
+        )}
       </ModalBody>
       <ModalFooter>
+        
         <Button
           form="discovery-source-setup-form"
           type="submit"
