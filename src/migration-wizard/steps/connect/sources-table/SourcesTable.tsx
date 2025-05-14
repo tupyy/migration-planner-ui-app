@@ -96,14 +96,14 @@ export const SourcesTable:  React.FC<{ onUploadResult?: (message: string, isErro
         {memoizedSources && memoizedSources.length>0 && (
           <Thead>
             <Tr>
-              <Th>{Columns.Name}</Th>
-              <Th>{Columns.CredentialsUrl}</Th>
-              <Th>{Columns.Status}</Th>
-              <Th>{Columns.Hosts}</Th>
-              <Th>{Columns.VMs}</Th>
-              <Th>{Columns.Networks}</Th>
-              <Th>{Columns.Datastores}</Th>
-              <Th>{Columns.Actions}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Name}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.CredentialsUrl}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Status}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Hosts}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.VMs}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Networks}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Datastores}</Th>
+              <Th style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>{Columns.Actions}</Th>
             </Tr>
           </Thead>
         )}
