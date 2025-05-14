@@ -1,5 +1,5 @@
-import { Table, Thead, Tr, Th, Tbody, Td } from "@patternfly/react-table";
-import React from "react";
+import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import React from 'react';
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ReportTable {
@@ -12,7 +12,7 @@ export namespace ReportTable {
 }
 
 export function ReportTable<DataItem>(
-  props: ReportTable.Props<DataItem[]>
+  props: ReportTable.Props<DataItem[]>,
 ): React.ReactNode {
   const { columns, data, fields, style } = props;
 
@@ -20,20 +20,35 @@ export function ReportTable<DataItem>(
     <Table
       variant="compact"
       borders={true}
-      style={{ border: "1px solid lightgray", borderRight: "none", ...style }}
+      style={{ border: '1px solid lightgray', borderRight: 'none', ...style }}
     >
       <Thead>
         <Tr>
-          {columns.map((name,index) => (
-            <Th key={index} hasRightBorder>{name}</Th>
+          {columns.map((name, index) => (
+            <Th
+              key={index}
+              hasRightBorder
+              style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}
+            >
+              {name}
+            </Th>
           ))}
         </Tr>
       </Thead>
       <Tbody>
         {data.map((item, idx) => (
-          <Tr key={idx}>
-            {fields.map((f,fieldIdx) => (
-              <Td key={fieldIdx} hasRightBorder> {item[f] === "" ? "-" : (item[f] as React.ReactNode)}</Td>
+          <Tr key={idx} style={{ width: 100 }}>
+            {fields.map((f, fieldIdx) => (
+              <Td key={fieldIdx} hasRightBorder>
+                {' '}
+                {item[f] === '' || item[f] === undefined
+                  ? '-'
+                  : typeof item[f] === 'boolean'
+                  ? item[f]
+                    ? 'True'
+                    : 'False'
+                  : (item[f] as React.ReactNode)}
+              </Td>
             ))}
           </Tr>
         ))}
@@ -42,4 +57,4 @@ export function ReportTable<DataItem>(
   );
 }
 
-ReportTable.displayName = "ReportTable";
+ReportTable.displayName = 'ReportTable';
