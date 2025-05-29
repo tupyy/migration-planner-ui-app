@@ -1,0 +1,6 @@
+#hidden-container .pf-v5-c-card {
+    background-color: white !important;
+    box-shadow: none !important;
+    color: black !important;
+    border: 1px solid rgba(3, 3, 3, 0.25);
+}

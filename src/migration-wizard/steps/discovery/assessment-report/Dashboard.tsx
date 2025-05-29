@@ -24,17 +24,25 @@ interface Props {
   cpuCores: VMResourceBreakdown;
   ramGB: VMResourceBreakdown;
   vms: VMs;
+  isExportMode?: boolean;
 }
 
-const cardContainerStyle: React.CSSProperties = {
-  height: '400px',       // Altura fija (ajústala según lo necesario)
-  overflow: 'auto',      // Scroll si hay overflow
-};
 
-export const Dashboard: React.FC<Props> = ({ infra, cpuCores, ramGB, vms }) => (
+
+const getCardStyle = (isExportMode?: boolean): React.CSSProperties =>
+  isExportMode
+    ? { }
+    : {
+        height: '400px',
+        overflow: 'auto',
+      };
+
+export const Dashboard: React.FC<Props> = ({ infra, cpuCores, ramGB, vms, isExportMode }) => {
+  
+  return(
   <PageSection variant={PageSectionVariants.light}>
     <Grid hasGutter>
-      <GridItem span={12}>
+      <GridItem span={12} id='infrastructure-overview'>
         <InfrastructureOverview
           infra={infra}
           cpuCores={cpuCores}
@@ -44,18 +52,18 @@ export const Dashboard: React.FC<Props> = ({ infra, cpuCores, ramGB, vms }) => (
       <GridItem span={12}>
         <Grid hasGutter>
           <GridItem span={6}>
-          <div style={cardContainerStyle}>
-            <VMMigrationStatus
-              data={{
-                migratable: vms.totalMigratableWithWarnings,
-                nonMigratable: vms.total - vms.totalMigratableWithWarnings,
-              }}
-            />
+            <div style={getCardStyle(isExportMode)}>
+              <VMMigrationStatus
+                data={{
+                  migratable: vms.totalMigratableWithWarnings,
+                  nonMigratable: vms.total - vms.totalMigratableWithWarnings,
+                }}
+              />
             </div>
           </GridItem>
           <GridItem span={6}>
-          <div style={cardContainerStyle}>
-            <OSDistribution osData={vms.os} />
+            <div style={getCardStyle(isExportMode)}>
+              <OSDistribution osData={vms.os} />
             </div>
           </GridItem>
         </Grid>
@@ -63,22 +71,26 @@ export const Dashboard: React.FC<Props> = ({ infra, cpuCores, ramGB, vms }) => (
       <GridItem span={12}>
         <Grid hasGutter>
           <GridItem span={6}>
-          <div style={cardContainerStyle}>
-            <StorageOverview data={vms.diskGB.histogram.data} minValue={vms.diskGB.histogram.minValue} step={vms.diskGB.histogram.step}/>
+            <div style={getCardStyle(isExportMode)}>
+              <StorageOverview
+                data={vms.diskGB.histogram.data}
+                minValue={vms.diskGB.histogram.minValue}
+                step={vms.diskGB.histogram.step}
+              />
             </div>
           </GridItem>
           <GridItem span={6}>
-          <div style={cardContainerStyle}>
-            <Datastores datastores={infra.datastores}/>
+            <div style={getCardStyle(isExportMode)}>
+              <Datastores datastores={infra.datastores} isExportMode={isExportMode}/>
             </div>
           </GridItem>
         </Grid>
       </GridItem>
     </Grid>
-      {/* <Grid hasGutter>
+     <Grid hasGutter>
       <GridItem span={6}>
-        <NetworkTopology />
+        <NetworkTopology networks={infra.networks}/>
       </GridItem>
-    </Grid> */}
-  </PageSection>
-);
+    </Grid> 
+  </PageSection>)
+};

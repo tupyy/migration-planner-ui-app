@@ -1,67 +1,47 @@
-import React, { useRef } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-import { Button, TreeView, TreeViewDataItem } from "@patternfly/react-core";
-import { createRoot } from "react-dom/client";
+import React, { useRef, useState } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import {
+  Button,
+  Spinner,
+  TreeView,
+  TreeViewDataItem,
+} from '@patternfly/react-core';
+import { createRoot } from 'react-dom/client';
+
+import './DownloadPDFStyles.css';
 
 interface DownloadPDFButtonProps {
   elementId: string;
-  treeViewData: TreeViewDataItem[];
+  componentToRender: React.ReactNode;
 }
 
 const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
   elementId,
-  treeViewData,
+  componentToRender,
 }) => {
   const hiddenContainerRef = useRef<HTMLDivElement | null>(null);
-
-  const assignUniqueIds = (
-    data: TreeViewDataItem[],
-    parentId: string = "download"
-  ): TreeViewDataItem[] => {
-    return data.map((item, index) => {
-      const uniqueId = `${item.id}-${parentId}-${index}`; 
-      return {
-        ...item,
-        id: uniqueId, 
-        key: uniqueId, 
-        children: item.children
-          ? assignUniqueIds(item.children, uniqueId)
-          : undefined, 
-      };
-    });
-  };
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  const [isLoading, setIsLoading] = useState(false);
   const handleDownloadPDF = async () => {
     try {
+      setIsLoading(true);
       const originalWarn = console.warn;
-      // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       console.warn = () => {};
-      const hiddenContainer = hiddenContainerRef.current;
-      
-      if (!hiddenContainer) return;
-      hiddenContainer.innerHTML = "";
-      const treeClone = (
-        <TreeView
-          id={`${elementId}-clone`}
-          aria-label="Cloned Discovery Report"
-          variant="compactNoBackground"
-          data={assignUniqueIds(treeViewData, elementId)}
-          allExpanded={true}
-        />
-      );
 
-      const tempDiv = document.createElement("div");
+      const hiddenContainer = hiddenContainerRef.current;
+      if (!hiddenContainer) return;
+      hiddenContainer.innerHTML = '';
+
+      const tempDiv = document.createElement('div');
       hiddenContainer.appendChild(tempDiv);
       const root = createRoot(tempDiv);
-      root.render(treeClone);
+      root.render(componentToRender);
 
-      
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const canvas = await html2canvas(hiddenContainer, { useCORS: true });
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
 
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
@@ -75,35 +55,52 @@ const DownloadPDFButton: React.FC<DownloadPDFButtonProps> = ({
 
       const scaleFactor = Math.min(
         contentWidth / imgWidth,
-        contentHeight / imgHeight
+        contentHeight / imgHeight,
       );
 
       pdf.addImage(
         imgData,
-        "PNG",
+        'PNG',
         margin,
         margin,
         imgWidth * scaleFactor,
-        imgHeight * scaleFactor
+        imgHeight * scaleFactor,
       );
-      pdf.save("Discovery_Report.pdf");
+      pdf.save('Dashboard_Report.pdf');
 
-      hiddenContainer.innerHTML = "";
+      hiddenContainer.innerHTML = '';
       console.warn = originalWarn;
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error('Error generating PDF:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <Button variant="secondary" onClick={handleDownloadPDF}>
-        Export PDF
-      </Button>     
+        {isLoading ? (
+          <>
+            <Spinner size="sm" /> Generating PDF...
+          </>
+        ) : (
+          'Export PDF'
+        )}
+      </Button>
       <div
         id="hidden-container"
         ref={hiddenContainerRef}
-        style={{ position: "absolute", left: "-9999px", visibility: "visible" }}
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: '0',
+          width: '1600px',
+          minHeight: '1200px',
+          padding: '2rem',
+          backgroundColor: 'white', // Para fondo claro
+          zIndex: -1,
+        }}
       />
     </>
   );
