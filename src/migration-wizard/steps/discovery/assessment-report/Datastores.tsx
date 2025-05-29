@@ -11,12 +11,14 @@ import { ReportTable } from '../ReportTable';
 
 interface DatastoresProps {
     datastores: Datastore[];
+    isExportMode: boolean;
   }
   
   export const Datastores: React.FC<DatastoresProps> = ({
     datastores,
+    isExportMode = false,
   }) => {
-
+    const tableWidth = isExportMode ? "100%" : "55rem";
   return (
         <Card>
           <CardTitle><i className="fas fa-database" />  Datastores</CardTitle>
@@ -39,7 +41,7 @@ interface DatastoresProps {
             }))}
             columns={[ "Type", "Vendor", "Storage offload support", "Protocol type", "Model", "Total capacity", "Usage %"]}
             fields={["type", "vendor", "hardwareAcceleratedMove", "protocolType", "model", "totalCapacityGB", , "usage"]}
-            style={{ width: "55rem" }}
+            style={{ width: tableWidth }}
           />
           </CardBody>
         </Card>

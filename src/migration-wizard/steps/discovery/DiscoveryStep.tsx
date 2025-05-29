@@ -1,5 +1,5 @@
-import React from "react";
-import Humanize from "humanize-plus";
+import React from 'react';
+import Humanize from 'humanize-plus';
 import {
   Stack,
   StackItem,
@@ -12,7 +12,7 @@ import {
   Flex,
   FlexItem,
   Progress,
-} from "@patternfly/react-core";
+} from '@patternfly/react-core';
 import {
   CogsIcon,
   DatabaseIcon,
@@ -23,7 +23,7 @@ import {
   MicrochipIcon,
   NetworkIcon,
   VirtualMachineIcon,
-} from "@patternfly/react-icons";
+} from '@patternfly/react-icons';
 import { global_warning_color_100 as globalWarningColor100 } from '@patternfly/react-tokens/dist/js/global_warning_color_100';
 import { global_danger_color_100 as globalDangerColor100 } from '@patternfly/react-tokens/dist/js/global_danger_color_100';
 import type {
@@ -31,55 +31,52 @@ import type {
   InfraNetworksInner,
   MigrationIssuesInner,
   Source,
-} from "@migration-planner-ui/api-client/models";
-import { useDiscoverySources } from "../../contexts/discovery-sources/Context";
-import { ReportTable } from "./ReportTable";
-import { ReportPieChart } from "./ReportPieChart";
-import DownloadPDFButton from "./DownloadPDFButton";
-import { Dashboard } from "./assessment-report/Dashboard";
+} from '@migration-planner-ui/api-client/models';
+import { useDiscoverySources } from '../../contexts/discovery-sources/Context';
+import { ReportTable } from './ReportTable';
+import { ReportPieChart } from './ReportPieChart';
+import DownloadPDFButton from './DownloadPDFButton';
+import { Dashboard } from './assessment-report/Dashboard';
 
 export const DiscoveryStep: React.FC = () => {
   const discoverSourcesContext = useDiscoverySources();
   const { inventory } = discoverSourcesContext.sourceSelected as Source;
   const { infra, vms } = inventory!;
-  const {
-    datastores,
-    networks,
-  } = infra;
+  const { datastores, networks } = infra;
   const { cpuCores, ramGB, diskCount, diskGB, os } = vms;
   const operatingSystems = Object.entries(os).map(([name, count]) => ({
     name,
     count: count as number,
-  })); 
+  }));
 
   const infrastructureViewData: TreeViewDataItem = {
-    title: "Infrastructure",
+    title: 'Infrastructure',
     icon: <InfrastructureIcon />,
     name: (
       <>
-        We found {infra.totalClusters}{" "}
-        {Humanize.pluralize(infra.totalClusters, "cluster")} with{" "}
-        {infra.totalHosts} {Humanize.pluralize(infra.totalHosts, "host")}. The
-        hosts have a total of {cpuCores.total} CPU cores and{" "}
+        We found {infra.totalClusters}{' '}
+        {Humanize.pluralize(infra.totalClusters, 'cluster')} with{' '}
+        {infra.totalHosts} {Humanize.pluralize(infra.totalHosts, 'host')}. The
+        hosts have a total of {cpuCores.total} CPU cores and{' '}
         {Humanize.fileSize(ramGB.total * 1024 ** 3, 0)} of memory.
       </>
     ),
-    id: "infra",
+    id: 'infra',
   };
 
   const computeStatsViewData: TreeViewDataItem = {
-    title: "Compute per VM",
+    title: 'Compute per VM',
     icon: <MicrochipIcon />,
-    id: "compute",
-    name: "",
+    id: 'compute',
+    name: '',
     children: [
       {
-        title: "Details",
-        id: "compute-details",
+        title: 'Details',
+        id: 'compute-details',
         name: (
           <Flex
-            fullWidth={{ default: "fullWidth" }}
-            spaceItems={{ default: "spaceItems4xl" }}
+            fullWidth={{ default: 'fullWidth' }}
+            spaceItems={{ default: 'spaceItems4xl' }}
           >
             <FlexItem>
               <ReportPieChart
@@ -102,7 +99,7 @@ export const DiscoveryStep: React.FC = () => {
   };
 
   const diskStatsViewData: TreeViewDataItem = {
-    title: "Disk size per VM",
+    title: 'Disk size per VM',
     icon: <HddIcon />,
     name: (
       <>
@@ -111,15 +108,15 @@ export const DiscoveryStep: React.FC = () => {
         OpenShift cluster and the time needed for disk format conversion.
       </>
     ),
-    id: "disk-size",
+    id: 'disk-size',
     children: [
       {
-        title: "Details",
-        id: "infra-details",
+        title: 'Details',
+        id: 'infra-details',
         name: (
           <Flex
-            fullWidth={{ default: "fullWidth" }}
-            spaceItems={{ default: "spaceItems4xl" }}
+            fullWidth={{ default: 'fullWidth' }}
+            spaceItems={{ default: 'spaceItems4xl' }}
           >
             <FlexItem>
               <ReportPieChart
@@ -142,24 +139,25 @@ export const DiscoveryStep: React.FC = () => {
   };
 
   const virtualMachinesViewData: TreeViewDataItem = {
-    title: "Virtual machines",
+    title: 'Virtual machines',
     icon: <VirtualMachineIcon />,
     name: (
       <>
-        This environment consists of {vms.totalMigratableWithWarnings } virtual machines,{" "}
+        This environment consists of {vms.totalMigratableWithWarnings} virtual
+        machines,{' '}
         {vms.total === (vms.totalMigratableWithWarnings ?? 0)
-          ? "All"
-          : vms.totalMigratableWithWarnings}{" "}
+          ? 'All'
+          : vms.totalMigratableWithWarnings}{' '}
         of them are potentially migratable to a new OpenShift cluster.
       </>
     ),
-    id: "vms",
+    id: 'vms',
     children: [
       {
         name: (
           <TextContent>
             <Text>
-              Warnings{" "}
+              Warnings{' '}
               <Badge isRead>
                 {vms.migrationWarnings
                   .map(({ count }) => count)
@@ -173,17 +171,17 @@ export const DiscoveryStep: React.FC = () => {
             <ExclamationTriangleIcon />
           </Icon>
         ),
-        id: "migration-warnings",
+        id: 'migration-warnings',
         children: [
           {
             name: (
               <ReportTable<MigrationIssuesInner>
                 data={vms.migrationWarnings}
-                columns={["Total", "Description"]}
-                fields={["count", "assessment"]}
+                columns={['Total', 'Description']}
+                fields={['count', 'assessment']}
               />
             ),
-            id: "migration-warnings-details",
+            id: 'migration-warnings-details',
           },
         ],
       },
@@ -192,7 +190,7 @@ export const DiscoveryStep: React.FC = () => {
             name: (
               <TextContent>
                 <Text>
-                  Not migratable reasons{" "}
+                  Not migratable reasons{' '}
                   <Badge isRead>
                     {vms.migrationWarnings
                       .map(({ count }) => count)
@@ -206,17 +204,17 @@ export const DiscoveryStep: React.FC = () => {
                 <ExclamationCircleIcon />
               </Icon>
             ),
-            id: "not-migratable",
+            id: 'not-migratable',
             children: [
               {
                 name: (
                   <ReportTable<MigrationIssuesInner>
                     data={vms.notMigratableReasons}
-                    columns={["Total", "Description"]}
-                    fields={["count", "assessment"]}
+                    columns={['Total', 'Description']}
+                    fields={['count', 'assessment']}
                   />
                 ),
-                id: "not-migratable-details",
+                id: 'not-migratable-details',
               },
             ],
           }
@@ -226,59 +224,62 @@ export const DiscoveryStep: React.FC = () => {
     ].filter(Boolean) as TreeViewDataItem[],
   };
 
-  const distributedSwitchNetworks = networks.filter(n => n.type === "distributed");
-  const standardNetworks = networks.filter(n => n.type === "standard");
+  const distributedSwitchNetworks = networks.filter(
+    (n) => n.type === 'distributed',
+  );
+  const standardNetworks = networks.filter((n) => n.type === 'standard');
 
   const uniqueDistributedSwitches = new Set(
-    distributedSwitchNetworks.map(n => n.dvswitch).filter(Boolean) // Remove empty values
+    distributedSwitchNetworks.map((n) => n.dvswitch).filter(Boolean), // Remove empty values
   ).size;
 
   const networksViewData: TreeViewDataItem = {
-    title: "Networks",
+    title: 'Networks',
     icon: <NetworkIcon />,
     name: (
       <>
-      We found {networks.length} networks:{" "}
-      {distributedSwitchNetworks.length} connected to {uniqueDistributedSwitches} distributed switches,{" "}
-      and {standardNetworks.length} standard network{standardNetworks.length !== 1 ? "s" : ""}.
-    </>
+        We found {networks.length} networks: {distributedSwitchNetworks.length}{' '}
+        connected to {uniqueDistributedSwitches} distributed switches, and{' '}
+        {standardNetworks.length} standard network
+        {standardNetworks.length !== 1 ? 's' : ''}.
+      </>
     ),
-    id: "networks",
+    id: 'networks',
     children: [
       {
-        title: "Details",
+        title: 'Details',
         name: (
           <ReportTable<InfraNetworksInner>
             data={networks}
-            columns={["Name", "Type", "VlanId"]}
-            fields={["name", "type", "vlanId"]}
+            columns={['Name', 'Type', 'VlanId']}
+            fields={['name', 'type', 'vlanId']}
           />
         ),
-        id: "networks-details",
-      }
+        id: 'networks-details',
+      },
     ],
   };
 
   const storageViewData: TreeViewDataItem = {
-    title: "Storage",
+    title: 'Storage',
     icon: <DatabaseIcon />,
     name: (
       <>
         The environment consists of {datastores.length} datastores with a total
-        capacity of{" "}
+        capacity of{' '}
         {Humanize.fileSize(
           datastores
             .map((ds) => ds.totalCapacityGB)
             .reduce((sum, next) => sum + next, 0) *
-            1024 ** 3
+            1024 ** 3,
         )}
         .
       </>
     ),
-    id: "storage",
+    id: 'storage',
     children: [
       {
-        title: "Datastores",
+        title: 'Datastores',
         name: (
           <ReportTable<
             Datastore & {
@@ -288,7 +289,7 @@ export const DiscoveryStep: React.FC = () => {
             data={datastores.map((ds) => ({
               ...ds,
               usage: (
-                <div style={{ minWidth: "10rem", flexGrow: 1 }}>
+                <div style={{ minWidth: '10rem', flexGrow: 1 }}>
                   <Progress
                     value={(ds.freeCapacityGB / ds.totalCapacityGB) * 100}
                     size="sm"
@@ -296,35 +297,52 @@ export const DiscoveryStep: React.FC = () => {
                 </div>
               ),
             }))}
-            columns={[ "Type", "Vendor", "Storage offload support", "Protocol type", "Model", "Total capacity", "Usage %"]}
-            fields={["type", "vendor", "hardwareAcceleratedMove", "protocolType", "model", "totalCapacityGB", , "usage"]}
-            style={{ width: "55rem" }}
+            columns={[
+              'Type',
+              'Vendor',
+              'Storage offload support',
+              'Protocol type',
+              'Model',
+              'Total capacity',
+              'Usage %',
+            ]}
+            fields={[
+              'type',
+              'vendor',
+              'hardwareAcceleratedMove',
+              'protocolType',
+              'model',
+              'totalCapacityGB',
+              ,
+              'usage',
+            ]}
+            style={{ width: '55rem' }}
           />
         ),
-        id: "datastores",
+        id: 'datastores',
       },
     ],
   };
 
   const operatingSystemsViewData: TreeViewDataItem = {
-    title: "Operating systems",
+    title: 'Operating systems',
     icon: <CogsIcon />,
     name: (
       <>These are the operating systems running on your virtual machines.</>
     ),
-    id: "os",
+    id: 'os',
     children: [
       {
-        title: "Details",
+        title: 'Details',
         name: (
           <ReportTable<{ name: string; count: number }>
             data={operatingSystems}
-            columns={["Count", "Name"]}
-            fields={["count", "name"]}
-            style={{ width: "25rem" }}
+            columns={['Count', 'Name']}
+            fields={['count', 'name']}
+            style={{ width: '25rem' }}
           />
         ),
-        id: "os-details",
+        id: 'os-details',
       },
     ],
   };
@@ -335,32 +353,46 @@ export const DiscoveryStep: React.FC = () => {
     networksViewData,
     storageViewData,
     operatingSystemsViewData,
-  ];  
+  ];
 
   return (
-    <Stack hasGutter id="discovery-report" >
+    <Stack hasGutter id="discovery-report">
       <StackItem>
         <TextContent>
-        <Flex alignItems={{ default: "alignItemsCenter" }} justifyContent={{ default: "justifyContentSpaceBetween" }}>
-          <FlexItem>
-            <TextContent>
-              <Text component="h2">Discovery report</Text>
-            </TextContent>
-          </FlexItem>
-          <FlexItem spacer={{ default: "spacerMd" }}>
-            <DownloadPDFButton elementId="discovery-report" treeViewData={treeViewData}/>
-          </FlexItem>
-        </Flex>
+          <Flex
+            alignItems={{ default: 'alignItemsCenter' }}
+            justifyContent={{ default: 'justifyContentSpaceBetween' }}
+          >
+            <FlexItem>
+              <TextContent>
+                <Text component="h2">Discovery report</Text>
+              </TextContent>
+            </FlexItem>
+            <FlexItem spacer={{ default: 'spacerMd' }}>
+              <DownloadPDFButton
+                elementId="discovery-report"
+                componentToRender={
+                  <Dashboard
+                    infra={infra}
+                    cpuCores={cpuCores}
+                    ramGB={ramGB}
+                    vms={vms}
+                    isExportMode={true}
+                  />
+                }
+              />
+            </FlexItem>
+          </Flex>
           <Text component="p">
             Review the information collected during the discovery process
           </Text>
         </TextContent>
       </StackItem>
       <StackItem>
-        <Dashboard infra={infra} cpuCores={cpuCores} ramGB={ramGB} vms={vms}/>       
+        <Dashboard infra={infra} cpuCores={cpuCores} ramGB={ramGB} vms={vms} />
       </StackItem>
     </Stack>
   );
 };
 
-DiscoveryStep.displayName = "DiscoveryStep";
+DiscoveryStep.displayName = 'DiscoveryStep';

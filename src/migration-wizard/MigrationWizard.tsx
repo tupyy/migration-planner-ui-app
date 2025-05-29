@@ -82,6 +82,7 @@ export const MigrationWizard: React.FC = () => {
   const [sourceSelected, setSourceSelected] = React.useState<Source>();
   const [isDiscoverySourceUpToDate, setIsDiscoverySourceUpToDate] =
     React.useState<boolean>(false);
+  const [activeStepId, setActiveStepId] = React.useState<string>('connect-step');
 
   useEffect(() => {
     if (discoverSourcesContext.sourceSelected) {
@@ -125,11 +126,16 @@ export const MigrationWizard: React.FC = () => {
   return (
     <Wizard
       height={computedHeight}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '65vh',
-      }}
+      style={
+        ['connect-step', 'plan-step'].includes(activeStepId)
+          ? {
+              display: 'flex',
+              flexDirection: 'column',
+              height: '65vh',
+            }
+          : undefined
+      }
+      onStepChange={(_event,step) => setActiveStepId(step.id as string)}
     >
       <WizardStep
         name="Connect"

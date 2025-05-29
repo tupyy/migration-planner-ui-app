@@ -19,7 +19,6 @@ interface OSDistributionProps {
 }
 
 export const OSDistribution: React.FC<OSDistributionProps> = ({ osData }) => {
-  console.log(osData);
   return (
     <Card>
       <CardTitle>Operating Systems</CardTitle>

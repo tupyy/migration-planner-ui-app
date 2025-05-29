@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const InfrastructureOverview: React.FC<Props> = ({ infra, cpuCores, ramGB}) => (
-  <Gallery hasGutter >
+  <Gallery hasGutter  minWidths={{ default: '20%' }} >
     <GalleryItem>
       <Card>
         <CardTitle><NetworkIcon /> Clusters</CardTitle>
