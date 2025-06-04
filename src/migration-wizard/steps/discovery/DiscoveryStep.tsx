@@ -293,6 +293,7 @@ export const DiscoveryStep: React.FC = () => {
                   <Progress
                     value={(ds.freeCapacityGB / ds.totalCapacityGB) * 100}
                     size="sm"
+                    aria-label="Disk usage"
                   />
                 </div>
               ),
