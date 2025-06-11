@@ -14,32 +14,24 @@ interface DiskHistogramProps {
   data: number[];
   minValue: number;
   step: number;
+  isExportMode?: boolean;
 }
 
 export const StorageOverview: React.FC<DiskHistogramProps> = ({
   data,
   minValue,
   step,
+  isExportMode=false
 }) => {
+  const tableHeight = isExportMode ? '100%': '210px';
   return (
-    <Card>
-      <CardTitle><i className="fas fa-database" />  Disks</CardTitle>
+    <Card className={isExportMode ? "dashboard-card-print":"dashboard-card"}>
+      <CardTitle>
+        <i className="fas fa-database" /> Disks
+      </CardTitle>
       <CardBody>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
-            flexWrap: 'wrap', // por si no cabe en pantallas pequeñas
-          }}
-        >
-          <div >
-            Disk Size Distribution
-          </div>
-
-          {/* Leyenda */}
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
+          <div>Disk Size Distribution
+          <div style={{ display: 'flex', gap: '1.5rem', float:'right' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span
                 style={{
@@ -50,7 +42,7 @@ export const StorageOverview: React.FC<DiskHistogramProps> = ({
                   marginRight: 6,
                 }}
               />
-              {'Easy'}
+              {'Small'}
             </div>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span
@@ -74,11 +66,17 @@ export const StorageOverview: React.FC<DiskHistogramProps> = ({
                   marginRight: 6,
                 }}
               />
-              {'Hard'}
+              {'Large'}
             </div>
           </div>
-        </div>
+          </div>
+
+         
+        <div
+          style={{ maxHeight: tableHeight, minWidth: '60%', overflowY: 'auto', overflowX:'auto' }}
+        >
         <DiskUsageHistogram data={data} minValue={minValue} step={step} />
+        </div>
       </CardBody>
     </Card>
   );
@@ -107,23 +105,23 @@ export const DiskUsageHistogram: React.FC<DiskHistogramProps> = ({
   const chartHeight = chartData.length * 35 + 100;
 
   return (
-    <div style={{ height: `${chartHeight}px` }}>
+  
       <Chart
         horizontal
         themeColor={ChartThemeColor.multi}
-        height={chartHeight}
         ariaTitle="Disk Size distribution"
         ariaDesc="Distribution of VMs by disk size"
         padding={{ top: 20, bottom: 60, left: 120, right: 50 }}
-        domainPadding={{ x: [10, 10], y: 10 }}
+        domainPadding={{ x: [20, 20], y: 20 }}
         title="Disk Size distribution"
+        height={chartHeight}
       >
         <ChartAxis
           dependentAxis
           style={{
             axis: { stroke: 'none' },
             ticks: { stroke: 'none' },
-            tickLabels: { fill: 'none' },
+            tickLabels: { fill: 'none', fontSize: 10 },
           }}
         />
         <ChartAxis
@@ -132,6 +130,7 @@ export const DiskUsageHistogram: React.FC<DiskHistogramProps> = ({
             axis: { stroke: 'none' },
             ticks: { stroke: 'none' },
             grid: { stroke: 'none' },
+            tickLabels: { fontSize: 12 },
           }}
         />
         <ChartGroup horizontal>
@@ -142,7 +141,7 @@ export const DiskUsageHistogram: React.FC<DiskHistogramProps> = ({
               <ChartLabel
                 textAnchor="start"
                 dx={10} // distancia horizontal desde la barra
-                style={{ fill: '#000', fontSize: 14 }}
+                style={{ fill: '#000', fontSize: 10 }}
               />
             }
             style={{
@@ -155,10 +154,10 @@ export const DiskUsageHistogram: React.FC<DiskHistogramProps> = ({
                   return '#d9534f';
                 },
               },
+              labels:{fontSize: 10}
             }}
           />
         </ChartGroup>
       </Chart>
-    </div>
   );
 };
