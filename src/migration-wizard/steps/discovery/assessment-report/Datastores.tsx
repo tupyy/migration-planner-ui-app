@@ -22,21 +22,14 @@ export const Datastores: React.FC<DatastoresProps> = ({
   isExportMode = false,
 }) => {
   const tableWidth = isExportMode ? '100%' : '55rem';
-  const tableHeight = isExportMode ? '100%' : '250px';
+  const tableHeight = isExportMode ? '100%' : '200px';
   return (
     <Card className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}>
       <CardTitle>
         <i className="fas fa-database" /> Datastores
       </CardTitle>
-      <CardBody>
-        <div
-          style={{
-            maxHeight: tableHeight,
-            overflowY: 'auto',
-            overflowX: 'auto',
-            padding: 16,
-          }}
-        >
+      <CardBody style={{padding: 0}}>
+      <div style={{ maxHeight: tableHeight, overflowY: 'auto', overflowX:'auto',padding: 2 }}>
           <ReportTable<
             Datastore & {
               usage: JSX.Element;
