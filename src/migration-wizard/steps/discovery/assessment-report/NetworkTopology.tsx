@@ -19,7 +19,7 @@ export const NetworkTopology: React.FC<NetworkTopologyProps> = ({
       <CardTitle>
         <NetworkIcon /> Network Topology
       </CardTitle>
-      <CardBody>
+      <CardBody style={{padding: 0}}>
       <div style={{ maxHeight: tableHeight, overflowY: 'auto', overflowX:'auto',padding: 2 }}>
           <ReportTable<InfraNetworksInner>
             data={networks}
