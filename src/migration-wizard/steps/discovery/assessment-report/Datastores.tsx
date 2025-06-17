@@ -61,7 +61,7 @@ export const Datastores: React.FC<DatastoresProps> = ({
               'Type',
               'Vendor',
               'Support',
-              'Type',
+              'Protocol type',
               'Model',
               'Total',
               'Usage %',
