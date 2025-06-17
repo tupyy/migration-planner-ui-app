@@ -21,7 +21,7 @@ export const Datastores: React.FC<DatastoresProps> = ({
   datastores,
   isExportMode = false,
 }) => {
-  const tableWidth = isExportMode ? '100%' : '55rem';
+  const tableWidth = '100%';
   const tableHeight = isExportMode ? '100%' : '200px';
   return (
     <Card className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}>
@@ -60,7 +60,6 @@ export const Datastores: React.FC<DatastoresProps> = ({
             columns={[
               'Type',
               'Vendor',
-              'Support',
               'Protocol type',
               'Model',
               'Total',
@@ -69,11 +68,9 @@ export const Datastores: React.FC<DatastoresProps> = ({
             fields={[
               'type',
               'vendor',
-              'hardwareAcceleratedMoveDisplay',
               'protocolType',
               'model',
               'totalCapacityGB',
-              ,
               'usage',
             ]}
             style={{ width: tableWidth }}
