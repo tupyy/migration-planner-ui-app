@@ -23,8 +23,8 @@ export const NetworkTopology: React.FC<NetworkTopologyProps> = ({
       <div style={{ maxHeight: tableHeight, overflowY: 'auto', overflowX:'auto',padding: 2 }}>
           <ReportTable<InfraNetworksInner>
             data={networks}
-            columns={['Name', 'Type', 'VlanId']}
-            fields={['name', 'type', 'vlanId']}
+            columns={['Type', 'VlanId']}
+            fields={['type', 'vlanId']}
             withoutBorder          
             />
         </div>
