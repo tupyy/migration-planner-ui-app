@@ -23,7 +23,7 @@ export const StorageOverview: React.FC<DiskHistogramProps> = ({
   step,
   isExportMode = false,
 }) => {
-  const tableHeight = isExportMode ? '100%' : '200px';
+  const tableHeight = isExportMode ? '100%' : '180px';
   const chartData = useMemo(() => {
     return data
       .map((count, index) => {
@@ -53,9 +53,7 @@ export const StorageOverview: React.FC<DiskHistogramProps> = ({
       </CardTitle>
       <CardBody>
         <Text component={TextVariants.small}>Disk Size Distribution</Text>
-       
-          <MigrationChart data={chartData} maxHeight='180px'/>
-        
+        <MigrationChart data={chartData}  maxHeight={tableHeight} />    
       </CardBody>
     </Card>
   );
