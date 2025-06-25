@@ -13,13 +13,16 @@ export const OSDistribution: React.FC<OSDistributionProps> = ({
   osData,
   isExportMode = false,
 }) => {
+ 
   return (
     <Card className={isExportMode ? 'dashboard-card-print' : 'dashboard-card'}>
       <CardTitle>
         <i className="fas fa-database" /> Operating Systems
       </CardTitle>
       <CardBody>
-        <OSBarChart osData={osData} isExportMode={isExportMode} />
+        
+          <OSBarChart osData={osData} isExportMode={isExportMode} />
+      
       </CardBody>
     </Card>
   );
@@ -43,6 +46,6 @@ export const OSBarChart: React.FC<OSBarChartProps> = ({
     count: count,
     legendCategory: `Supported`, // You may want to add logic to determine if an OS is supported
   }));
-
-  return <MigrationChart data={chartData} />;
+  const tableHeight = isExportMode ? '100%' : '200px';
+  return <MigrationChart data={chartData} maxHeight={tableHeight} />;
 };
