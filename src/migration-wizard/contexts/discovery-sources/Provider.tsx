@@ -48,11 +48,32 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const [createSourceState, createSource] = useAsyncFn(
     async (name: string, sshPublicKey: string, httpProxy:string, httpsProxy:string, noProxy: string) => {
       try {
-        return await sourceApi.createSource({ sourceCreate: { name, sshPublicKey, proxy: {
-          httpUrl: httpProxy,
-          httpsUrl: httpsProxy,
-          noProxy: noProxy          
-        } } });
+        // Build the sourceCreate object conditionally
+        const sourceCreate: any = { name };
+        
+        // Only include sshPublicKey if it has a value
+        if (sshPublicKey && sshPublicKey.trim()) {
+          sourceCreate.sshPublicKey = sshPublicKey;
+        }
+        
+        // Only include proxy if at least one proxy field has a value
+        const proxyFields: any = {};
+        if (httpProxy && httpProxy.trim()) {
+          proxyFields.httpUrl = httpProxy;
+        }
+        if (httpsProxy && httpsProxy.trim()) {
+          proxyFields.httpsUrl = httpsProxy;
+        }
+        if (noProxy && noProxy.trim()) {
+          proxyFields.noProxy = noProxy;
+        }
+        
+        // Only add proxy object if it has at least one field
+        if (Object.keys(proxyFields).length > 0) {
+          sourceCreate.proxy = proxyFields;
+        }
+        
+        return await sourceApi.createSource({ sourceCreate });
       } catch (error: unknown) {
         console.error("Error creating source:", error);
   
