@@ -65,9 +65,15 @@ export const AgentStatusView: React.FC<AgentStatusView.Props> = (props) => {
       case "not-connected":
         return {
           icon: (
-            <Icon isInline>
-              <DisconnectedIcon />
-            </Icon>
+            uploadedManually ? (
+              <Icon size="md" isInline>
+                <CheckCircleIcon color={globalSuccessColor100.value} />
+              </Icon>
+            ) : (
+              <Icon isInline>
+                <DisconnectedIcon />
+              </Icon>
+            )
           ),
           text: uploadedManually ? "Uploaded manually": "Not connected",
         };
