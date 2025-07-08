@@ -14,10 +14,22 @@ import { PrepareMigrationStep } from './steps/prepare-migration/PrepareMigration
 import { Source } from '@migration-planner-ui/api-client/models';
 
 const openAssistedInstaller = (): void => {
-  window.open(
-    '/openshift/assisted-installer/clusters/~new?source=assisted_migration',
-    '_blank',
-  );
+  const currentHost = window.location.hostname;
+  
+  
+  if (currentHost === 'console.stage.redhat.com') {
+    console.log('Opening dev URL for stage environment');
+    window.open(
+      'https://console.dev.redhat.com/openshift/assisted-installer/clusters/~new?source=assisted_migration',
+      '_blank',
+    );
+  } else {
+    console.log('Opening default URL');
+    window.open(
+      '/openshift/assisted-installer/clusters/~new?source=assisted_migration',
+      '_blank',
+    );
+  }
 };
 
 type CustomWizardFooterPropType = {
