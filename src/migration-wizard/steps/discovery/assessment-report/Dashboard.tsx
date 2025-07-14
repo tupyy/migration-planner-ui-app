@@ -1,23 +1,25 @@
 import React from 'react';
-import {
-  PageSection,
-  PageSectionVariants,
-  Grid,
-  GridItem,
-  Gallery,
-  GalleryItem,
-} from '@patternfly/react-core';
-import { InfrastructureOverview } from './InfastructureOverview';
+
 import {
   Infra,
   VMResourceBreakdown,
   VMs,
 } from '@migration-planner-ui/api-client/models';
-import { VMMigrationStatus } from './VMMigrationStatus';
-import { NetworkTopology } from './NetworkTopology';
-import { StorageOverview } from './StorageOverview';
-import { OSDistribution } from './OSDistribution';
+import {
+  Gallery,
+  GalleryItem,
+  Grid,
+  GridItem,
+  PageSection,
+  PageSectionVariants,
+} from '@patternfly/react-core';
+
 import { Datastores } from './Datastores';
+import { InfrastructureOverview } from './InfastructureOverview';
+import { NetworkTopology } from './NetworkTopology';
+import { OSDistribution } from './OSDistribution';
+import { StorageOverview } from './StorageOverview';
+import { VMMigrationStatus } from './VMMigrationStatus';
 
 import './Dashboard.css';
 
@@ -36,6 +38,14 @@ export const Dashboard: React.FC<Props> = ({
   vms,
   isExportMode,
 }) => {
+  // Transform osInfo to the expected format, fallback to os if osInfo is undefined
+  const osData = vms.osInfo
+    ? Object.entries(vms.osInfo).reduce((acc, [osName, osInfo]) => {
+        acc[osName] = osInfo.count;
+        return acc;
+      }, {} as { [osName: string]: number })
+    : vms.os;
+
   return (
     <PageSection variant={PageSectionVariants.light}>
       <Grid hasGutter>
@@ -58,7 +68,7 @@ export const Dashboard: React.FC<Props> = ({
               />
             </GalleryItem>
             <GalleryItem>
-              <OSDistribution osData={vms.os}  isExportMode={isExportMode}/>
+              <OSDistribution osData={osData} isExportMode={isExportMode} />
             </GalleryItem>
           </Gallery>
         </GridItem>
@@ -73,18 +83,20 @@ export const Dashboard: React.FC<Props> = ({
               />
             </GalleryItem>
             <GalleryItem>
-            <NetworkTopology networks={infra.networks}  isExportMode={isExportMode}/>
-                
+              <NetworkTopology
+                networks={infra.networks}
+                isExportMode={isExportMode}
+              />
             </GalleryItem>
           </Gallery>
         </GridItem>
         <GridItem span={12}>
           <Gallery hasGutter minWidths={{ default: '80%' }}>
             <GalleryItem>
-            <Datastores
-                  datastores={infra.datastores}
-                  isExportMode={isExportMode}
-                />
+              <Datastores
+                datastores={infra.datastores}
+                isExportMode={isExportMode}
+              />
             </GalleryItem>
           </Gallery>
         </GridItem>
