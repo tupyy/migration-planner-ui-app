@@ -15,7 +15,7 @@ Before proceeding, ensure you have the following:
 
 You need to have the Migration Planner installed and running locally.
 Please follow the instructions in this guide: 
-https://github.com/kubev2v/migration-planner/blob/run-local-doc/doc/run-locally.md
+https://github.com/kubev2v/migration-planner/blob/main/doc/run-locally.md
 
 ## Running the UI locally for Development
 
