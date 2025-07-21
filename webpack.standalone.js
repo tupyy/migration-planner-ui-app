@@ -107,7 +107,7 @@ module.exports = {
       'process.env.STANDALONE_MODE': JSON.stringify(true),
       'process.env.PLANNER_API_BASE_URL': JSON.stringify(
         process.env.USE_MIGRATION_PLANNER_API === 'true' 
-          ? ''
+          ? (process.env.PLANNER_API_BASE_URL || '')
           : '/planner'
       ),
     }),
@@ -118,7 +118,18 @@ module.exports = {
     historyApiFallback: true,
     open: true,
     // Proxy for your backend APIs
-    proxy: {
+    proxy: process.env.PLANNER_LOCAL_DEV === 'true' ? {
+      // Local development with migration-planner API
+      '/planner': {
+        target: 'http://localhost:3443',
+        secure: false,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/planner': ''              // Remove /planner prefix for local dev only
+        },
+      },
+    } : {
+      // Default proxy configuration
       '/api/migration-assessment': {
         target: 'https://migration-planner-assisted-migration-stage.apps.crcs02ue1.urby.p1.openshiftapps.com',
         secure: false,
