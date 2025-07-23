@@ -17,6 +17,15 @@ You need to have the Migration Planner installed and running locally.
 Please follow the instructions in this guide: 
 https://github.com/kubev2v/migration-planner/blob/main/doc/run-locally.md
 
+## Setting Up the UI
+
+Before running the UI, install the required dependencies:
+
+```bash
+# Install npm dependencies
+npm install
+```
+
 ## Running the UI locally for Development
 
 Set the `PLANNER_LOCAL_DEV` environment variable to enable local development mode:
