@@ -53,5 +53,8 @@ declare namespace DiscoverySources {
     ) => Promise<void>;
     isUpdatingSource: boolean;
     errorUpdatingSource?: Error;
+    sourceDownloadUrls: Record<string, string>;
+    getDownloadUrlForSource: (sourceId: string) => string | undefined;
+    storeDownloadUrlForSource: (sourceId: string, downloadUrl: string) => void;
   };
 }
