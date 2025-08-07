@@ -13,8 +13,9 @@ import {
   StackItem,
   Text,
   TextContent,
+  Tooltip,
 } from '@patternfly/react-core';
-import { ClusterIcon, MigrationIcon } from '@patternfly/react-icons';
+import { ClusterIcon, MigrationIcon, QuestionCircleIcon } from '@patternfly/react-icons';
 import { global_active_color_300 as globalActiveColor300 } from '@patternfly/react-tokens/dist/js/global_active_color_300';
 import { AppPage } from '../components/AppPage';
 import { CustomEnterpriseIcon } from '../components/CustomEnterpriseIcon';
@@ -39,6 +40,18 @@ const cards: React.ReactElement[] = [
               See an example report.
             </Button>
           </a>
+          <Tooltip
+            content="As part of the discovery process, 
+            we're collecting aggregated data about your VMware environment. 
+            This includes information such as the number of clusters, hosts, and VMs; 
+            VM counts per operating system type; total CPU cores and memory; 
+            network types and VLANs; and a list of datastores."
+            position="top-start"
+          >
+            <Icon style={{ color: globalActiveColor300.var }}>
+              <QuestionCircleIcon />
+            </Icon>
+          </Tooltip>
         </Text>
       </TextContent>
     </CardBody>
