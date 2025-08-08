@@ -47,6 +47,27 @@ export const DiscoveryStep: React.FC = () => {
   const { infra, vms } = inventory!;
   const { datastores, networks } = infra;
   const { cpuCores, ramGB, diskCount, diskGB, os } = vms;
+
+  // Create assessment when DiscoveryStep is accessed (only if source is not "Example")
+  React.useEffect(() => {
+    const sourceId = discoverSourcesContext.sourceSelected?.id;
+    const sourceName = discoverSourcesContext.sourceSelected?.name;
+    if (
+      sourceId &&
+      sourceName !== 'Example' &&
+      discoverSourcesContext.createAssessment
+    ) {
+      discoverSourcesContext.createAssessment(
+        sourceId,
+        `Assessment for ${sourceName || 'source'}`,
+      );
+    }
+  }, [
+    discoverSourcesContext.sourceSelected?.id,
+    discoverSourcesContext.sourceSelected?.name,
+    discoverSourcesContext.createAssessment,
+  ]);
+
   const operatingSystems = Object.entries(os).map(([name, count]) => ({
     name,
     count: count as number,
@@ -317,7 +338,6 @@ export const DiscoveryStep: React.FC = () => {
               'protocolType',
               'model',
               'totalCapacityGB',
-              ,
               'usage',
             ]}
             style={{ width: '55rem' }}

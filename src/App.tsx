@@ -1,14 +1,20 @@
-import React, { Fragment, useEffect, useMemo } from "react";
-import { useChrome } from "@redhat-cloud-services/frontend-components/useChrome";
-import { Spinner } from "@patternfly/react-core";
-import { Container } from "@migration-planner-ui/ioc";
-import { Provider as DependencyInjectionProvider } from "@migration-planner-ui/ioc";
-import { Configuration } from "@migration-planner-ui/api-client/runtime";
-import { AgentApi } from "@migration-planner-ui/agent-client/apis";
-import { ImageApi, SourceApi } from "@migration-planner-ui/api-client/apis";
-import Routing from "./Routing";
-import { Symbols } from "./main/Symbols";
-import { createAuthFetch } from "./utils/authFetch";
+import React, { Fragment, useEffect, useMemo } from 'react';
+
+import { AgentApi } from '@migration-planner-ui/agent-client/apis';
+import {
+  AssessmentApi,
+  ImageApi,
+  SourceApi,
+} from '@migration-planner-ui/api-client/apis';
+import { Configuration } from '@migration-planner-ui/api-client/runtime';
+import { Container } from '@migration-planner-ui/ioc';
+import { Provider as DependencyInjectionProvider } from '@migration-planner-ui/ioc';
+import { Spinner } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+
+import { Symbols } from './main/Symbols';
+import { createAuthFetch } from './utils/authFetch';
+import Routing from './Routing';
 
 const App = () => {
   const chrome = useChrome(); // useChrome SÍ puede usarse acá
@@ -19,7 +25,8 @@ const App = () => {
       const authFetch = createAuthFetch(chrome); // pasamos chrome
 
       const plannerApiConfig = new Configuration({
-        basePath: process.env.PLANNER_API_BASE_URL || '/api/migration-assessment',
+        basePath:
+          process.env.PLANNER_API_BASE_URL || '/api/migration-assessment',
         fetchApi: authFetch,
       });
 
@@ -27,6 +34,7 @@ const App = () => {
       c.register(Symbols.ImageApi, new ImageApi(plannerApiConfig));
       c.register(Symbols.SourceApi, new SourceApi(plannerApiConfig));
       c.register(Symbols.AgentApi, new AgentApi(plannerApiConfig));
+      c.register(Symbols.AssessmentApi, new AssessmentApi(plannerApiConfig));
 
       setContainer(c);
     };

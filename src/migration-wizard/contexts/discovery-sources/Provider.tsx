@@ -1,14 +1,15 @@
-import React, { type PropsWithChildren, useCallback, useState, useEffect } from 'react';
+import React, { type PropsWithChildren, useCallback, useState } from 'react';
 import { useAsyncFn, useInterval } from 'react-use';
 
 import {
   type AgentApiInterface,
+  type AssessmentApiInterface,
   type ImageApiInterface,
   type SourceApiInterface,
 } from '@migration-planner-ui/api-client/apis';
 import {
   Agent,
-  InventoryFromJSON,
+  Assessment,
   Source,
   UpdateInventoryFromJSON,
 } from '@migration-planner-ui/api-client/models';
@@ -27,13 +28,18 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const [sourcesLoaded, setSourcesLoaded] = useState(false);
 
   const [downloadSourceUrl, setDownloadSourceUrl] = useState('');
-  const [sourceDownloadUrls, setSourceDownloadUrls] = useState<Record<string, string>>({});
+  const [sourceDownloadUrls, setSourceDownloadUrls] = useState<
+    Record<string, string>
+  >({});
 
   const [sourceCreatedId, setSourceCreatedId] = useState<string | null>(null);
 
   const sourceApi = useInjection<SourceApiInterface>(Symbols.SourceApi);
   const agentsApi = useInjection<AgentApiInterface>(Symbols.AgentApi);
   const imageApi = useInjection<ImageApiInterface>(Symbols.ImageApi);
+  const assessmentApi = useInjection<AssessmentApiInterface>(
+    Symbols.AssessmentApi,
+  );
 
   const [listAgentsState, listAgents] = useAsyncFn(async () => {
     if (!sourcesLoaded) return;
@@ -46,6 +52,23 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     setSourcesLoaded(true);
     return sources;
   });
+
+  const [listAssessmentsState, listAssessments] = useAsyncFn(async () => {
+    const assessments = await assessmentApi.listAssessments();
+    return assessments;
+  });
+
+  const [createAssessmentState, createAssessment] = useAsyncFn(
+    async (sourceId: string, name?: string) => {
+      const assessmentName = name || `Assessment-${new Date().toISOString()}`;
+      const assessment = await assessmentApi.createAssessment({
+        assessmentForm: { sourceID: sourceId, name: assessmentName },
+      });
+      // Refresh the assessments list after creating a new one
+      await listAssessments();
+      return assessment;
+    },
+  );
 
   const [deleteSourceState, deleteSource] = useAsyncFn(async (id: string) => {
     const deletedSource = await sourceApi.deleteSource({ id });
@@ -165,16 +188,22 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     },
   );
 
-  const getDownloadUrlForSource = useCallback((sourceId: string): string | undefined => {
-    return sourceDownloadUrls[sourceId];
-  }, [sourceDownloadUrls]);
+  const getDownloadUrlForSource = useCallback(
+    (sourceId: string): string | undefined => {
+      return sourceDownloadUrls[sourceId];
+    },
+    [sourceDownloadUrls],
+  );
 
-  const storeDownloadUrlForSource = useCallback((sourceId: string, downloadUrl: string) => {
-    setSourceDownloadUrls(prev => ({
-      ...prev,
-      [sourceId]: downloadUrl
-    }));
-  }, []);
+  const storeDownloadUrlForSource = useCallback(
+    (sourceId: string, downloadUrl: string) => {
+      setSourceDownloadUrls((prev) => ({
+        ...prev,
+        [sourceId]: downloadUrl,
+      }));
+    },
+    [],
+  );
 
   const [isPolling, setIsPolling] = useState(false);
   const [pollingDelay, setPollingDelay] = useState<number | null>(null);
@@ -370,6 +399,13 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     sourceDownloadUrls,
     getDownloadUrlForSource,
     storeDownloadUrlForSource,
+    assessments: listAssessmentsState.value ?? [],
+    isLoadingAssessments: listAssessmentsState.loading,
+    errorLoadingAssessments: listAssessmentsState.error,
+    listAssessments,
+    createAssessment,
+    isCreatingAssessment: createAssessmentState.loading,
+    errorCreatingAssessment: createAssessmentState.error,
   };
 
   return <Context.Provider value={ctx}>{children}</Context.Provider>;
