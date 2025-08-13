@@ -4,7 +4,7 @@ name: 'Commit'
 on:
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   commit-message-format:
@@ -26,8 +26,10 @@ jobs:
           IFS=$'\n' commit_messages=($(git log --pretty=format:"%s" $BASE_SHA...$HEAD_SHA))          
           
           # Lists of GitHub users for whom the commit validation should be skipped:
-          # Currently there is no bot used in the repository, add new bots here if needed
-          declare -a skip_pr_authors=()
+          # * red-hat-konflux[bot] - automatic bot responsible for any library or konflux integration update
+          declare -a skip_pr_authors=(
+            "red-hat-konflux[bot]"
+          )
           echo "The PR Author is \"${PR_AUTHOR}\""
           for skip_pr_author in "${skip_pr_authors[@]}"
           do
