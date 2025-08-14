@@ -1,11 +1,13 @@
-import React from "react";
-import { css } from "@emotion/css";
-import { SVGIcon } from "../components/SVGIcon";
+import React from 'react';
+
+import { css } from '@emotion/css';
+
+import { SVGIcon } from '../components/SVGIcon';
 
 const classes = {
   root: css({
-    width: "3rem",
-    height: "3rem",
+    width: '3rem',
+    height: '3rem',
   }),
 };
 
@@ -39,4 +41,4 @@ export const OpenShiftIcon: React.FC = () => (
   </SVGIcon>
 );
 
-OpenShiftIcon.displayName = "OpenShiftIcon";
+OpenShiftIcon.displayName = 'OpenShiftIcon';

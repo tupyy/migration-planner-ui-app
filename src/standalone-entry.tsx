@@ -5,7 +5,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 
 import App from './App'; // Make sure this path is correct relative to standalone-entry.tsx
 
@@ -49,73 +49,86 @@ if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <StandaloneAppWrapper />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 } else {
-  console.error('Root element #root not found in the DOM. Ensure public/standalone.html has <div id="root"></div>');
+  console.error(
+    'Root element #root not found in the DOM. Ensure public/standalone.html has <div id="root"></div>',
+  );
 }
 
 // --- GLOBAL MOCKS for window.insights.chrome ---
 if (process.env.STANDALONE_MODE) {
   // Use direct assignment to avoid TypeScript conflicts
-  (window as any).insights = {
+  (window as Record<string, unknown>).insights = {
     chrome: {
       auth: {
-        getUser: () => Promise.resolve({
-          identity: {
-            account_number: '000000',
-            type: 'User',
-            org_id: 'standalone-org-id',
-            user: {
-              email: 'standalone@example.com',
-              first_name: 'Standalone',
-              last_name: 'User',
-              is_active: true,
-              is_org_admin: true,
-              username: 'standalone-dev',
-              is_internal: false,
-              locale: 'en-US',
+        getUser: (): Promise<Record<string, unknown>> =>
+          Promise.resolve({
+            identity: {
+              account_number: '000000',
+              type: 'User',
+              org_id: 'standalone-org-id',
+              user: {
+                email: 'standalone@example.com',
+                first_name: 'Standalone',
+                last_name: 'User',
+                is_active: true,
+                is_org_admin: true,
+                username: 'standalone-dev',
+                is_internal: false,
+                locale: 'en-US',
+              },
             },
-          },
-          entitlements: {
-            'migration-assessment': { is_entitled: true, is_trial: false },
-          },
-          entitled: {
-            'migration-assessment': true
-          }
-        }),
-        getToken: () => Promise.resolve('mock-standalone-token'),
-        getOfflineToken: () => Promise.resolve('mock-offline-token'),
-        getRefreshToken: () => Promise.resolve('mock-refresh-token'),
-        login: () => Promise.resolve(),
-        logout: () => {},
+            entitlements: {
+              'migration-assessment': { is_entitled: true, is_trial: false },
+            },
+            entitled: {
+              'migration-assessment': true,
+            },
+          }),
+        getToken: (): Promise<string> =>
+          Promise.resolve('mock-standalone-token'),
+        getOfflineToken: (): Promise<string> =>
+          Promise.resolve('mock-offline-token'),
+        getRefreshToken: (): Promise<string> =>
+          Promise.resolve('mock-refresh-token'),
+        login: (): Promise<void> => Promise.resolve(),
+        logout: (): void => {},
         qe: {},
-        reAuthWithScopes: (...scopes: string[]) => Promise.resolve(),
-        doOffline: () => {},
+        reAuthWithScopes: (..._scopes: string[]): Promise<void> =>
+          Promise.resolve(),
+        doOffline: (): void => {},
       },
       is: {
-        serviceAvailable: () => Promise.resolve(true),
-        entitled: () => Promise.resolve(true),
-        appNavAvailable: () => true,
-        edge: () => false,
+        serviceAvailable: (): Promise<boolean> => Promise.resolve(true),
+        entitled: (): Promise<boolean> => Promise.resolve(true),
+        appNavAvailable: (): boolean => true,
+        edge: (): boolean => false,
       },
       appNav: {
-        get: () => [],
+        get: (): unknown[] => [],
       },
-      identifyApp: (appName: string) => {
+      identifyApp: (appName: string): Promise<boolean> => {
         console.log(`[Standalone Mock] identifyApp called with: ${appName}`);
         return Promise.resolve(true);
       },
-      on: (event: string, callback: Function) => {
-        console.log(`[Standalone Mock] Event listener for "${event}" registered.`);
-        return () => console.log(`[Standalone Mock] Event listener for "${event}" unregistered.`);
+      on: (event: string, _callback: (...args: unknown[]) => void): void => {
+        console.log(
+          `[Standalone Mock] Event listener for "${event}" registered.`,
+        );
+        return (): void =>
+          console.log(
+            `[Standalone Mock] Event listener for "${event}" unregistered.`,
+          );
       },
-      init: () => {
+      init: (): void => {
         console.log('[Standalone Mock] insights.chrome.init() called.');
       },
-      getUserPermissions: () => Promise.resolve([
-        { permission: 'app:read', resource: '*', resourceDefinitions: [] }
-      ]),
+      getUserPermissions: (): Promise<Record<string, unknown>[]> =>
+        Promise.resolve([
+          { permission: 'app:read', resource: '*', resourceDefinitions: [] },
+        ]),
     },
   };
 

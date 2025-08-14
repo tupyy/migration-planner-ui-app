@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+
 import {
   Bullseye,
   Button,
@@ -15,8 +16,13 @@ import {
   TextContent,
   Tooltip,
 } from '@patternfly/react-core';
-import { ClusterIcon, MigrationIcon, QuestionCircleIcon } from '@patternfly/react-icons';
+import {
+  ClusterIcon,
+  MigrationIcon,
+  QuestionCircleIcon,
+} from '@patternfly/react-icons';
 import { global_active_color_300 as globalActiveColor300 } from '@patternfly/react-tokens/dist/js/global_active_color_300';
+
 import { AppPage } from '../components/AppPage';
 import { CustomEnterpriseIcon } from '../components/CustomEnterpriseIcon';
 

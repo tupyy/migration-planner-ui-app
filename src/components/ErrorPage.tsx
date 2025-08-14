@@ -1,4 +1,6 @@
 import React from 'react';
+import { useLocation, useParams } from 'react-router-dom';
+
 import { css, keyframes } from '@emotion/css';
 import {
   Backdrop,
@@ -15,9 +17,8 @@ import {
   TextContent,
 } from '@patternfly/react-core';
 import { ErrorCircleOIcon, WarningTriangleIcon } from '@patternfly/react-icons';
-import { global_warning_color_100 as globalWarningColor100 } from '@patternfly/react-tokens/dist/js/global_warning_color_100';
 import { global_danger_color_100 as globalDangerColor100 } from '@patternfly/react-tokens/dist/js/global_danger_color_100';
-import { useLocation, useParams } from 'react-router-dom';
+import { global_warning_color_100 as globalWarningColor100 } from '@patternfly/react-tokens/dist/js/global_warning_color_100';
 
 const bounce = keyframes`
   from, 20%, 53%, 80%, to {
