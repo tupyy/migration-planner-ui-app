@@ -1,3 +1,4 @@
+/* eslint-disable sort-imports */
 import React, { useCallback, useEffect, useState } from 'react';
 
 import {
@@ -24,19 +25,17 @@ import {
 
 import { useDiscoverySources } from '../../../../contexts/discovery-sources/Context';
 
-export namespace DiscoverySourceSetupModal {
-  export type Props = {
-    isOpen?: boolean;
-    isDisabled?: boolean;
-    onClose?: (event?: KeyboardEvent | React.MouseEvent) => void;
-    onStartDownload: () => void;
-    onAfterDownload: () => Promise<void>;
-  };
-}
+type DiscoverySourceSetupModalProps = {
+  isOpen?: boolean;
+  isDisabled?: boolean;
+  onClose?: (event?: KeyboardEvent | React.MouseEvent) => void;
+  onStartDownload: () => void;
+  onAfterDownload: () => Promise<void>;
+};
 
 export const DiscoverySourceSetupModal: React.FC<
-  DiscoverySourceSetupModal.Props
-> = (props) => {
+  DiscoverySourceSetupModalProps
+> = (props): JSX.Element => {
   const discoverySourcesContext = useDiscoverySources();
   const {
     isOpen = false,
@@ -80,7 +79,7 @@ export const DiscoverySourceSetupModal: React.FC<
     setSshKeyError(validateSshKey(value));
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback((): void => {
     setSshKey('');
     setSshKeyError(null);
     setShowUrl(false);
@@ -94,9 +93,9 @@ export const DiscoverySourceSetupModal: React.FC<
     discoverySourcesContext.setDownloadUrl('');
     discoverySourcesContext.deleteSourceCreated();
     discoverySourcesContext.errorDownloadingSource = null;
-  };
+  }, [discoverySourcesContext]);
 
-  const backToOvaConfiguration = () => {
+  const backToOvaConfiguration = (): void => {
     setShowUrl(false);
     discoverySourcesContext.setDownloadUrl('');
     setIsEditingConfiguration(true);
@@ -164,6 +163,8 @@ export const DiscoverySourceSetupModal: React.FC<
       onStartDownload,
       onAfterDownload,
       onClose,
+      isEditingConfiguration,
+      resetForm,
     ],
   );
 
@@ -178,7 +179,7 @@ export const DiscoverySourceSetupModal: React.FC<
     if (isOpen) {
       resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, resetForm]);
 
   return (
     <Modal

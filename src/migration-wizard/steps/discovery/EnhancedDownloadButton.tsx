@@ -1,20 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useRef, useState } from 'react';
-import { createRoot } from 'react-dom/client';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { createRoot } from 'react-dom/client';
 
+import type { Source } from '@migration-planner-ui/api-client/models';
 import {
-  Button,
-  Spinner,
   Dropdown,
   DropdownItem,
   DropdownList,
   MenuToggle,
   MenuToggleElement,
+  Spinner,
 } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
-
-import type { Source } from '@migration-planner-ui/api-client/models';
 
 import './DownloadPDFStyles.css';
 
@@ -25,19 +24,19 @@ interface EnhancedDownloadButtonProps {
 }
 
 const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
-  elementId,
+  elementId: _elementId,
   componentToRender,
   sourceData,
-}) => {
+}): JSX.Element => {
   const hiddenContainerRef = useRef<HTMLDivElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async (): Promise<void> => {
     try {
       setIsLoading(true);
       const originalWarn = console.warn;
-      console.warn = () => {};
+      console.warn = (): void => {};
 
       const hiddenContainer = hiddenContainerRef.current;
       if (!hiddenContainer) return;
@@ -88,102 +87,138 @@ const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
     }
   };
 
-// Helper function to format numbers with K/M suffixes
-const formatNumber = (num: number): string => {
-  if (num >= 1000000) {
-    return `${(num / 1000000).toFixed(1)}M`;
-  } else if (num >= 1000) {
-    return `${(num / 1000).toFixed(1)}K`;
-  }
-  return num.toString();
-};
-
-// Helper function to escape HTML to prevent XSS attacks
-const escapeHtml = (str: string): string => {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-};
-
-// Generate chart data from inventory
-const generateChartData = (inventory: any) => {
-  const { infra, vms } = inventory;
-
-  const powerStateData = [
-    ['Powered On', vms.powerStates.poweredOn],
-    ['Powered Off', vms.powerStates.poweredOff],
-    ['Suspended', vms.powerStates.suspended || 0],
-  ];
-
-  const resourceData = [
-    ['CPU Cores', vms.cpuCores.total, Math.round(vms.cpuCores.total * 1.2)],
-    ['Memory GB', vms.ramGB.total, Math.round(vms.ramGB.total * 1.25)],
-    ['Storage GB', vms.diskGB.total, Math.round(vms.diskGB.total * 1.15)],
-  ];
-
-  const osEntries = Object.entries(vms.os).sort(([,a], [,b]) => (b as number) - (a as number));
-  const osData = osEntries.slice(0, 8).map(([name, count]) => [name, count]);
-
-  const warningsData = vms.migrationWarnings.map((w: any) => [w.label, w.count]);
-
-  const storageLabels = infra.datastores.map((ds: any) => `${ds.vendor} ${ds.type}`);
-  const storageUsedData = infra.datastores.map((ds: any) => ds.totalCapacityGB - ds.freeCapacityGB);
-  const storageTotalData = infra.datastores.map((ds: any) => ds.totalCapacityGB);
-
-  return {
-    powerStateData,
-    resourceData,
-    osData,
-    warningsData,
-    storageLabels,
-    storageUsedData,
-    storageTotalData,
+  // Helper function to format numbers with K/M suffixes
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
   };
-};
 
-// Generate HTML table for operating systems
-const generateOSTable = (vms: any): string => {
-  const osEntries = Object.entries(vms.os).sort(([,a], [,b]) => (b as number) - (a as number));
-  if (osEntries.length === 0) {
-    return '<tr><td colspan="4">No operating system data available</td></tr>';
-  }
+  // Helper function to escape HTML to prevent XSS attacks
+  const escapeHtml = (str: string): string => {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  };
 
-  return osEntries.map(([osName, count]) => {
-    const percentage = ((count as number) / vms.total * 100).toFixed(1);
-    const priority = osName.includes('Windows') ? 'High' : 
-                    osName.includes('Linux') || osName.includes('Red Hat') ? 'Medium' : 'Review Required';
-    return `
+  // Generate chart data from inventory
+  const generateChartData = (
+    inventory: Record<string, any>,
+  ): Record<string, any> => {
+    const { infra, vms } = inventory;
+
+    const powerStateData = [
+      ['Powered On', vms.powerStates.poweredOn],
+      ['Powered Off', vms.powerStates.poweredOff],
+      ['Suspended', vms.powerStates.suspended || 0],
+    ];
+
+    const resourceData = [
+      ['CPU Cores', vms.cpuCores.total, Math.round(vms.cpuCores.total * 1.2)],
+      ['Memory GB', vms.ramGB.total, Math.round(vms.ramGB.total * 1.25)],
+      ['Storage GB', vms.diskGB.total, Math.round(vms.diskGB.total * 1.15)],
+    ];
+
+    const osEntries = Object.entries(vms.os).sort(
+      ([, a], [, b]) => (b as number) - (a as number),
+    );
+    const osData = osEntries.slice(0, 8).map(([name, count]) => [name, count]);
+
+    const warningsData = vms.migrationWarnings.map((w: any) => [
+      w.label,
+      w.count,
+    ]);
+
+    const storageLabels = infra.datastores.map(
+      (ds: any) => `${ds.vendor} ${ds.type}`,
+    );
+    const storageUsedData = infra.datastores.map(
+      (ds: any) => ds.totalCapacityGB - ds.freeCapacityGB,
+    );
+    const storageTotalData = infra.datastores.map(
+      (ds: any) => ds.totalCapacityGB,
+    );
+
+    return {
+      powerStateData,
+      resourceData,
+      osData,
+      warningsData,
+      storageLabels,
+      storageUsedData,
+      storageTotalData,
+    };
+  };
+
+  // Generate HTML table for operating systems
+  const generateOSTable = (vms: any): string => {
+    const osEntries = Object.entries(vms.os).sort(
+      ([, a], [, b]) => (b as number) - (a as number),
+    );
+    if (osEntries.length === 0) {
+      return '<tr><td colspan="4">No operating system data available</td></tr>';
+    }
+
+    return osEntries
+      .map(([osName, count]) => {
+        const percentage = (((count as number) / vms.total) * 100).toFixed(1);
+        const priority = osName.includes('Windows')
+          ? 'High'
+          : osName.includes('Linux') || osName.includes('Red Hat')
+          ? 'Medium'
+          : 'Review Required';
+        return `
       <tr>
         <td><strong>${escapeHtml(osName)}</strong></td>
         <td>${count}</td>
         <td>${percentage}%</td>
         <td>${escapeHtml(priority)}</td>
       </tr>`;
-  }).join('');
-};
+      })
+      .join('');
+  };
 
-// Generate HTML table for migration warnings
-const generateWarningsTable = (vms: any): string => {
-  if (vms.migrationWarnings.length === 0) {
-    return `<div class="table-section">
+  // Generate HTML table for migration warnings
+  const generateWarningsTable = (vms: any): string => {
+    if (vms.migrationWarnings.length === 0) {
+      return `<div class="table-section">
       <h3>Migration Warnings Analysis</h3>
       <p>No migration warnings to display.</p>
     </div>`;
-  }
+    }
 
-  const warningsRows = vms.migrationWarnings.map((warning: any) => {
-    const impact = warning.count > 50 ? 'Critical' : 
-                  warning.count > 20 ? 'High' : 
-                  warning.count > 5 ? 'Medium' : 'Low';
-    const percentage = ((warning.count / vms.total) * 100).toFixed(1);
-    const priority = impact === 'Critical' ? 'Immediate' :
-                    impact === 'High' ? 'Before Migration' :
-                    impact === 'Medium' ? 'During Migration' : 'Post Migration';
-    const rowClass = impact === 'Critical' ? 'warning-high' :
-                    impact === 'High' ? 'warning-medium' :
-                    impact === 'Medium' ? 'warning-low' : '';
+    const warningsRows = vms.migrationWarnings
+      .map((warning: any) => {
+        const impact =
+          warning.count > 50
+            ? 'Critical'
+            : warning.count > 20
+            ? 'High'
+            : warning.count > 5
+            ? 'Medium'
+            : 'Low';
+        const percentage = ((warning.count / vms.total) * 100).toFixed(1);
+        const priority =
+          impact === 'Critical'
+            ? 'Immediate'
+            : impact === 'High'
+            ? 'Before Migration'
+            : impact === 'Medium'
+            ? 'During Migration'
+            : 'Post Migration';
+        const rowClass =
+          impact === 'Critical'
+            ? 'warning-high'
+            : impact === 'High'
+            ? 'warning-medium'
+            : impact === 'Medium'
+            ? 'warning-low'
+            : '';
 
-    return `
+        return `
       <tr class="${rowClass}">
         <td><strong>${escapeHtml(warning.label)}</strong></td>
         <td>${warning.count}</td>
@@ -191,9 +226,10 @@ const generateWarningsTable = (vms: any): string => {
         <td>${percentage}%</td>
         <td>${escapeHtml(priority)}</td>
       </tr>`;
-  }).join('');
+      })
+      .join('');
 
-  return `<div class="table-section">
+    return `<div class="table-section">
     <h3>Migration Warnings Analysis</h3>
     <table>
       <thead>
@@ -210,20 +246,27 @@ const generateWarningsTable = (vms: any): string => {
       </tbody>
     </table>
   </div>`;
-};
+  };
 
-// Generate HTML table for storage infrastructure
-const generateStorageTable = (infra: any): string => {
-  if (infra.datastores.length === 0) {
-    return '<tr><td colspan="7">No datastore information available</td></tr>';
-  }
+  // Generate HTML table for storage infrastructure
+  const generateStorageTable = (infra: any): string => {
+    if (infra.datastores.length === 0) {
+      return '<tr><td colspan="7">No datastore information available</td></tr>';
+    }
 
-  return infra.datastores.map((ds: any) => {
-    const utilization = ds.totalCapacityGB > 0 ? 
-      (((ds.totalCapacityGB - ds.freeCapacityGB) / ds.totalCapacityGB) * 100).toFixed(1) : '0.0';
-    const hwAccel = ds.hardwareAcceleratedMove ? '✅ Yes' : '❌ No';
+    return infra.datastores
+      .map((ds: any) => {
+        const utilization =
+          ds.totalCapacityGB > 0
+            ? (
+                ((ds.totalCapacityGB - ds.freeCapacityGB) /
+                  ds.totalCapacityGB) *
+                100
+              ).toFixed(1)
+            : '0.0';
+        const hwAccel = ds.hardwareAcceleratedMove ? '✅ Yes' : '❌ No';
 
-    return `
+        return `
       <tr>
         <td><strong>${escapeHtml(ds.vendor)}</strong></td>
         <td>${escapeHtml(ds.type)}</td>
@@ -233,12 +276,13 @@ const generateStorageTable = (infra: any): string => {
         <td>${utilization}%</td>
         <td>${hwAccel}</td>
       </tr>`;
-  }).join('');
-};
+      })
+      .join('');
+  };
 
-// Generate CSS styles for the HTML report
-const generateHTMLStyles = (): string => {
-  return `
+  // Generate CSS styles for the HTML report
+  const generateHTMLStyles = (): string => {
+    return `
     body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
     .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .header { text-align: center; margin-bottom: 40px; }
@@ -274,14 +318,22 @@ const generateHTMLStyles = (): string => {
         .summary-grid { grid-template-columns: repeat(2, 1fr); }
         .container { padding: 20px; margin: 10px; }
     }`;
-};
+  };
 
-// Generate complete HTML template with data and scripts
-const generateHTMLTemplate = (chartData: any, inventory: any): string => {
-  const { infra, vms } = inventory;
-  const { powerStateData, resourceData, osData, warningsData, storageLabels, storageUsedData, storageTotalData } = chartData;
+  // Generate complete HTML template with data and scripts
+  const generateHTMLTemplate = (chartData: any, inventory: any): string => {
+    const { infra, vms } = inventory;
+    const {
+      powerStateData,
+      resourceData,
+      osData,
+      warningsData,
+      storageLabels,
+      storageUsedData,
+      storageTotalData,
+    } = chartData;
 
-  return `
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -341,21 +393,29 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                 </div>
             </div>
 
-            ${vms.migrationWarnings.length > 0 ? `
+            ${
+              vms.migrationWarnings.length > 0
+                ? `
             <div class="chart-container">
                 <h3>Migration Warnings</h3>
                 <div class="chart-wrapper">
                     <canvas id="warningsChart"></canvas>
                 </div>
-            </div>` : ''}
+            </div>`
+                : ''
+            }
 
-            ${infra.datastores.length > 0 ? `
+            ${
+              infra.datastores.length > 0
+                ? `
             <div class="chart-container">
                 <h3>Storage Utilization by Datastore</h3>
                 <div class="chart-wrapper">
                     <canvas id="storageChart"></canvas>
                 </div>
-            </div>` : ''}
+            </div>`
+                : ''
+            }
         </div>
 
         <div class="section">
@@ -393,20 +453,30 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                         <tr>
                             <td><strong>CPU Cores (vCPUs)</strong></td>
                             <td>${vms.cpuCores.total}</td>
-                            <td>${(vms.cpuCores.total / vms.total).toFixed(1)}</td>
-                            <td>${Math.round(vms.cpuCores.total * 1.2)} (with 20% overhead)</td>
+                            <td>${(vms.cpuCores.total / vms.total).toFixed(
+                              1,
+                            )}</td>
+                            <td>${Math.round(
+                              vms.cpuCores.total * 1.2,
+                            )} (with 20% overhead)</td>
                         </tr>
                         <tr>
                             <td><strong>Memory (GB)</strong></td>
                             <td>${vms.ramGB.total}</td>
                             <td>${(vms.ramGB.total / vms.total).toFixed(1)}</td>
-                            <td>${Math.round(vms.ramGB.total * 1.25)} (with 25% overhead)</td>
+                            <td>${Math.round(
+                              vms.ramGB.total * 1.25,
+                            )} (with 25% overhead)</td>
                         </tr>
                         <tr>
                             <td><strong>Storage (GB)</strong></td>
                             <td>${vms.diskGB.total}</td>
-                            <td>${(vms.diskGB.total / vms.total).toFixed(1)}</td>
-                            <td>${Math.round(vms.diskGB.total * 1.15)} (with 15% overhead)</td>
+                            <td>${(vms.diskGB.total / vms.total).toFixed(
+                              1,
+                            )}</td>
+                            <td>${Math.round(
+                              vms.diskGB.total * 1.15,
+                            )} (with 15% overhead)</td>
                         </tr>
                     </tbody>
                 </table>
@@ -449,9 +519,13 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                 new Chart(powerCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ${JSON.stringify(powerStateData.map((d: any) => d[0]))},
+                        labels: ${JSON.stringify(
+                          powerStateData.map((d: any) => d[0]),
+                        )},
                         datasets: [{
-                            data: ${JSON.stringify(powerStateData.map((d: any) => d[1]))},
+                            data: ${JSON.stringify(
+                              powerStateData.map((d: any) => d[1]),
+                            )},
                             backgroundColor: ['#27ae60', '#e74c3c', '#f39c12']
                         }]
                     },
@@ -469,14 +543,20 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                 new Chart(resourceCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(resourceData.map((d: any) => d[0]))},
+                        labels: ${JSON.stringify(
+                          resourceData.map((d: any) => d[0]),
+                        )},
                         datasets: [{
                             label: 'Current',
-                            data: ${JSON.stringify(resourceData.map((d: any) => d[1]))},
+                            data: ${JSON.stringify(
+                              resourceData.map((d: any) => d[1]),
+                            )},
                             backgroundColor: '#3498db'
                         }, {
                             label: 'Recommended',
-                            data: ${JSON.stringify(resourceData.map((d: any) => d[2]))},
+                            data: ${JSON.stringify(
+                              resourceData.map((d: any) => d[2]),
+                            )},
                             backgroundColor: '#2ecc71'
                         }]
                     },
@@ -497,7 +577,9 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                     data: {
                         labels: ${JSON.stringify(osData.map((d: any) => d[0]))},
                         datasets: [{
-                            data: ${JSON.stringify(osData.map((d: any) => d[1]))},
+                            data: ${JSON.stringify(
+                              osData.map((d: any) => d[1]),
+                            )},
                             backgroundColor: ['#3498db', '#e74c3c', '#27ae60', '#f39c12', '#9b59b6', '#1abc9c', '#34495e', '#e67e22']
                         }]
                     },
@@ -511,20 +593,34 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                 });
             }
 
-            ${vms.migrationWarnings.length > 0 ? `
+            ${
+              vms.migrationWarnings.length > 0
+                ? `
             // Migration Warnings Chart
             const warningsCtx = document.getElementById('warningsChart');
             if (warningsCtx) {
                 new Chart(warningsCtx, {
                     type: 'bar',
                     data: {
-                        labels: ${JSON.stringify(warningsData.map((d: any) => d[0]))},
+                        labels: ${JSON.stringify(
+                          warningsData.map((d: any) => d[0]),
+                        )},
                         datasets: [{
-                            data: ${JSON.stringify(warningsData.map((d: any) => d[1]))},
-                            backgroundColor: ${JSON.stringify(warningsData.map((d: any) => {
-                              const count = Number(d[1]);
-                              return count > 50 ? '#e74c3c' : count > 20 ? '#f39c12' : count > 5 ? '#27ae60' : '#3498db';
-                            }))}
+                            data: ${JSON.stringify(
+                              warningsData.map((d: any) => d[1]),
+                            )},
+                            backgroundColor: ${JSON.stringify(
+                              warningsData.map((d: any) => {
+                                const count = Number(d[1]);
+                                return count > 50
+                                  ? '#e74c3c'
+                                  : count > 20
+                                  ? '#f39c12'
+                                  : count > 5
+                                  ? '#27ae60'
+                                  : '#3498db';
+                              }),
+                            )}
                         }]
                     },
                     options: {
@@ -534,9 +630,13 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                         scales: { y: { beginAtZero: true } }
                     }
                 });
-            }` : ''}
+            }`
+                : ''
+            }
 
-            ${infra.datastores.length > 0 ? `
+            ${
+              infra.datastores.length > 0
+                ? `
             // Storage Utilization Chart
             const storageCtx = document.getElementById('storageChart');
             if (storageCtx) {
@@ -561,53 +661,59 @@ const generateHTMLTemplate = (chartData: any, inventory: any): string => {
                         scales: { y: { beginAtZero: true } }
                     }
                 });
-            }` : ''}
+            }`
+                : ''
+            }
         });
     </script>
 </body>
 </html>`;
-};
+  };
 
-// Download HTML file
-const downloadHTMLFile = (content: string, filename: string): void => {
-  const htmlBlob = new Blob([content], { type: 'text/html;charset=utf-8;' });
-  const htmlUrl = URL.createObjectURL(htmlBlob);
-  const htmlLink = document.createElement('a');
-  htmlLink.href = htmlUrl;
-  htmlLink.download = filename;
-  document.body.appendChild(htmlLink);
-  htmlLink.click();
-  URL.revokeObjectURL(htmlUrl);
-  document.body.removeChild(htmlLink);
-};
+  // Download HTML file
+  const downloadHTMLFile = (content: string, filename: string): void => {
+    const htmlBlob = new Blob([content], { type: 'text/html;charset=utf-8;' });
+    const htmlUrl = URL.createObjectURL(htmlBlob);
+    const htmlLink = document.createElement('a');
+    htmlLink.href = htmlUrl;
+    htmlLink.download = filename;
+    document.body.appendChild(htmlLink);
+    htmlLink.click();
+    URL.revokeObjectURL(htmlUrl);
+    document.body.removeChild(htmlLink);
+  };
 
-const handleHTMLExport = async () => {
-  try {
-    setIsLoading(true);
-    
-    if (!sourceData?.inventory) {
-      alert('No inventory data available for export');
-      return;
+  const handleHTMLExport = async (): Promise<void> => {
+    try {
+      setIsLoading(true);
+
+      if (!sourceData?.inventory) {
+        alert('No inventory data available for export');
+        return;
+      }
+
+      const { inventory } = sourceData;
+
+      const chartData = generateChartData(inventory);
+
+      const htmlContent = generateHTMLTemplate(chartData, inventory);
+
+      // Download the file
+      downloadHTMLFile(
+        htmlContent,
+        'VMware_Infrastructure_Assessment_Comprehensive.html',
+      );
+
+      console.log(
+        '✅ Comprehensive HTML file with enhanced charts and tables downloaded successfully!',
+      );
+    } catch (error) {
+      console.error('Error generating HTML file:', error);
+      alert('Failed to generate HTML file: ' + error);
+    } finally {
+      setIsLoading(false);
     }
-
-    const { inventory } = sourceData;
-
-    const chartData = generateChartData(inventory);
-
-    const htmlContent = generateHTMLTemplate(chartData, inventory);
-    
-    // Download the file
-    downloadHTMLFile(htmlContent, 'VMware_Infrastructure_Assessment_Comprehensive.html');
-
-    console.log("✅ Comprehensive HTML file with enhanced charts and tables downloaded successfully!");
-
-  } catch (error) {
-    console.error('Error generating HTML file:', error);
-    alert('Failed to generate HTML file: ' + error);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const exportOptions = [
     {
@@ -617,19 +723,19 @@ const handleHTMLExport = async () => {
       action: handleDownloadPDF,
     },
     {
-    key: 'html-interactive',
-    label: 'Export HTML',
-    description: 'Interactive charts',
-    action: handleHTMLExport,
-    disabled: !sourceData?.inventory,
-  },
+      key: 'html-interactive',
+      label: 'Export HTML',
+      description: 'Interactive charts',
+      action: handleHTMLExport,
+      disabled: !sourceData?.inventory,
+    },
   ];
 
-  const onToggleClick = () => {
+  const onToggleClick = (): void => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  const onSelect = () => {
+  const onSelect = (): void => {
     setIsDropdownOpen(false);
   };
 

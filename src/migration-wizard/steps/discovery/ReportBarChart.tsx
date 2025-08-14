@@ -1,12 +1,13 @@
-import React from "react";
+import React from 'react';
+
 import {
   Chart,
-  ChartVoronoiContainer,
   ChartAxis,
-  ChartGroup,
   ChartBar,
-} from "@patternfly/react-charts";
-import { TextContent, Text } from "@patternfly/react-core";
+  ChartGroup,
+  ChartVoronoiContainer,
+} from '@patternfly/react-charts';
+import { Text, TextContent } from '@patternfly/react-core';
 
 type ChartBarDataEntry = {
   name: string;
@@ -17,7 +18,7 @@ type ChartBarDataEntry = {
 function histogramToBarChartData(
   histogram: ReportBarChart.Histogram,
   name: string,
-  units: string = ""
+  units: string = '',
 ): ChartBarDataEntry[] {
   const { minValue, step, data } = histogram;
   return data.map((y, idx) => {
@@ -56,13 +57,13 @@ export function ReportBarChart(props: ReportBarChart.Props): React.ReactNode {
 
   return (
     <>
-      <TextContent style={{ textAlign: "center" }}>
+      <TextContent style={{ textAlign: 'center' }}>
         <Text>{title}</Text>
       </TextContent>
       <Chart
-        name={title.toLowerCase().split(" ").join("-")}
-        ariaDesc={title + " chart"}
-        ariaTitle={title + " chart"}
+        name={title.toLowerCase().split(' ').join('-')}
+        ariaDesc={title + ' chart'}
+        ariaTitle={title + ' chart'}
         containerComponent={
           <ChartVoronoiContainer
             responsive
@@ -83,7 +84,7 @@ export function ReportBarChart(props: ReportBarChart.Props): React.ReactNode {
         <ChartAxis />
         <ChartAxis dependentAxis showGrid />
         <ChartGroup>
-          <ChartBar data={histogramToBarChartData(histogram, "Count")} />
+          <ChartBar data={histogramToBarChartData(histogram, 'Count')} />
         </ChartGroup>
       </Chart>
     </>
