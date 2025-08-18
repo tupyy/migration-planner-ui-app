@@ -30,3 +30,6 @@ yalc.lock
 # Standalone build
 dist-standalone
 docker-config
+
+# lint
+.eslintcache
