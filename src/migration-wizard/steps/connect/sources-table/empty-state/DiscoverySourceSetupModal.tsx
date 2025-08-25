@@ -93,7 +93,7 @@ export const DiscoverySourceSetupModal: React.FC<
     discoverySourcesContext.setDownloadUrl('');
     discoverySourcesContext.deleteSourceCreated();
     discoverySourcesContext.errorDownloadingSource = null;
-  }, [discoverySourcesContext]);
+  }, []);
 
   const backToOvaConfiguration = (): void => {
     setShowUrl(false);
