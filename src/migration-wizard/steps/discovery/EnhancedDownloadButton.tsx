@@ -168,8 +168,8 @@ const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
         const priority = osName.includes('Windows')
           ? 'High'
           : osName.includes('Linux') || osName.includes('Red Hat')
-          ? 'Medium'
-          : 'Review Required';
+            ? 'Medium'
+            : 'Review Required';
         return `
       <tr>
         <td><strong>${escapeHtml(osName)}</strong></td>
@@ -196,27 +196,27 @@ const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
           warning.count > 50
             ? 'Critical'
             : warning.count > 20
-            ? 'High'
-            : warning.count > 5
-            ? 'Medium'
-            : 'Low';
+              ? 'High'
+              : warning.count > 5
+                ? 'Medium'
+                : 'Low';
         const percentage = ((warning.count / vms.total) * 100).toFixed(1);
         const priority =
           impact === 'Critical'
             ? 'Immediate'
             : impact === 'High'
-            ? 'Before Migration'
-            : impact === 'Medium'
-            ? 'During Migration'
-            : 'Post Migration';
+              ? 'Before Migration'
+              : impact === 'Medium'
+                ? 'During Migration'
+                : 'Post Migration';
         const rowClass =
           impact === 'Critical'
             ? 'warning-high'
             : impact === 'High'
-            ? 'warning-medium'
-            : impact === 'Medium'
-            ? 'warning-low'
-            : '';
+              ? 'warning-medium'
+              : impact === 'Medium'
+                ? 'warning-low'
+                : '';
 
         return `
       <tr class="${rowClass}">
@@ -615,10 +615,10 @@ const EnhancedDownloadButton: React.FC<EnhancedDownloadButtonProps> = ({
                                 return count > 50
                                   ? '#e74c3c'
                                   : count > 20
-                                  ? '#f39c12'
-                                  : count > 5
-                                  ? '#27ae60'
-                                  : '#3498db';
+                                    ? '#f39c12'
+                                    : count > 5
+                                      ? '#27ae60'
+                                      : '#3498db';
                               }),
                             )}
                         }]

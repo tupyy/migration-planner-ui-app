@@ -36,8 +36,8 @@ export const StorageOverview: React.FC<DiskHistogramProps> = ({
             rangeStart < 500
               ? 'Small'
               : rangeStart <= 1000
-              ? 'Medium'
-              : 'Large',
+                ? 'Medium'
+                : 'Large',
           rangeStart,
         };
       })

@@ -42,20 +42,26 @@ export const Dashboard: React.FC<Props> = ({
 }) => {
   // Transform osInfo to include both count and supported fields, fallback to os with supported=true if osInfo is undefined
   const osData = vms.osInfo
-    ? Object.entries(vms.osInfo).reduce((acc, [osName, osInfo]) => {
-        acc[osName] = {
-          count: osInfo.count,
-          supported: osInfo.supported,
-        };
-        return acc;
-      }, {} as { [osName: string]: { count: number; supported: boolean } })
-    : Object.entries(vms.os).reduce((acc, [osName, count]) => {
-        acc[osName] = {
-          count: count,
-          supported: true, // Default to supported when using fallback data
-        };
-        return acc;
-      }, {} as { [osName: string]: { count: number; supported: boolean } });
+    ? Object.entries(vms.osInfo).reduce(
+        (acc, [osName, osInfo]) => {
+          acc[osName] = {
+            count: osInfo.count,
+            supported: osInfo.supported,
+          };
+          return acc;
+        },
+        {} as { [osName: string]: { count: number; supported: boolean } },
+      )
+    : Object.entries(vms.os).reduce(
+        (acc, [osName, count]) => {
+          acc[osName] = {
+            count: count,
+            supported: true, // Default to supported when using fallback data
+          };
+          return acc;
+        },
+        {} as { [osName: string]: { count: number; supported: boolean } },
+      );
 
   return (
     <PageSection variant={PageSectionVariants.light}>

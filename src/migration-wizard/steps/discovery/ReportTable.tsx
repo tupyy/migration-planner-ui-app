@@ -75,10 +75,10 @@ export function ReportTable<DataItem>(
                 {item[f] === '' || item[f] === undefined
                   ? '-'
                   : typeof item[f] === 'boolean'
-                  ? item[f]
-                    ? 'True'
-                    : 'False'
-                  : (item[f] as React.ReactNode)}
+                    ? item[f]
+                      ? 'True'
+                      : 'False'
+                    : (item[f] as React.ReactNode)}
               </Td>
             ))}
           </Tr>
