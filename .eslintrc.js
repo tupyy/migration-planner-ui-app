@@ -1,5 +1,8 @@
 module.exports = {
-  extends: '@redhat-cloud-services/eslint-config-redhat-cloud-services',
+  extends: [
+    '@redhat-cloud-services/eslint-config-redhat-cloud-services', 
+    'prettier' // Disable ESLint rules that conflict with Prettier
+  ],
   globals: {
     insights: 'readonly',
   },
@@ -11,7 +14,7 @@ module.exports = {
       extends: ['plugin:@typescript-eslint/recommended', 'plugin:react-hooks/recommended'],
       rules: {
         '@typescript-eslint/no-unused-vars': [
-          'warn',
+          'error',
           {
             args: 'all',
             argsIgnorePattern: '^_',
@@ -53,5 +56,7 @@ module.exports = {
     ],
     // Enable this if you want to use absolute import paths
     'rulesdir/forbid-pf-relative-imports': 'off',
+    // Disable prettier ESLint rules since we use separate format validation
+    'prettier/prettier': 'off',
   },
 };

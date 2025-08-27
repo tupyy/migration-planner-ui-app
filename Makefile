@@ -57,6 +57,20 @@ lint-fix: install
 	npm run lint:js:fix
 	@echo "✅ Lint fix finished successfully!"
 
+format-check: install
+	@echo "🎨 Checking code formatting with Prettier..."
+	@npx prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
+	@echo "✅ Code formatting check passed!"
+
+format: install
+	@echo "🎨 Formatting code with Prettier..."
+	@npx prettier --write "src/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
+	@echo "✅ Code formatting completed!"
+
+# Combined format validation - runs both linting and format checks
+validate-all: lint format-check
+	@echo "✅ All validation checks passed!"
+
 # Build the container image
 podman-build:
 	@echo "Building container image: $(IMAGE):$(IMAGE_TAG)"
@@ -175,6 +189,11 @@ help:
 	@echo "Local Development:"
 	@echo "  build-standalone     Build the standalone application locally"
 	@echo "  build               Build the federated module locally"
+	@echo "  lint                Run ESLint checks"
+	@echo "  lint-fix            Run ESLint with auto-fix"
+	@echo "  format-check        Check code formatting with Prettier"
+	@echo "  format              Format code with Prettier"
+	@echo "  validate-all        Run all validation checks (lint + format-check)"
 	@echo ""
 	@echo "Container Management:"
 	@echo "  podman-build        Build the container image"
@@ -201,7 +220,7 @@ help:
 	@echo "  HOST_PORT=$(HOST_PORT)"
 	@echo "  CONTAINER_PORT=$(CONTAINER_PORT)"
 
-.PHONY: oc build-standalone build podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
+.PHONY: oc build-standalone build lint lint-fix format-check format validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
 
 # Default target
 .DEFAULT_GOAL := help
