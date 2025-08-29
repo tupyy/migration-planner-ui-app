@@ -67,8 +67,14 @@ format: install
 	@npx prettier --write "src/**/*.{ts,tsx,js,jsx,json,css,scss,md}"
 	@echo "✅ Code formatting completed!"
 
+# TypeScript type checking
+type-check: install
+	@echo "🔍 Running TypeScript type checking..."
+	@npx tsc --noEmit --project tsconfig.json
+	@echo "✅ TypeScript type checking passed!"
+
 # Combined format validation - runs both linting and format checks
-validate-all: lint format-check
+validate-all: lint format-check type-check
 	@echo "✅ All validation checks passed!"
 
 # Build the container image
@@ -193,7 +199,8 @@ help:
 	@echo "  lint-fix            Run ESLint with auto-fix"
 	@echo "  format-check        Check code formatting with Prettier"
 	@echo "  format              Format code with Prettier"
-	@echo "  validate-all        Run all validation checks (lint + format-check)"
+	@echo "  type-check          TypeScript type checking"
+	@echo "  validate-all        Run all validation checks (lint + format-check + type-check)"
 	@echo ""
 	@echo "Container Management:"
 	@echo "  podman-build        Build the container image"
@@ -220,7 +227,7 @@ help:
 	@echo "  HOST_PORT=$(HOST_PORT)"
 	@echo "  CONTAINER_PORT=$(CONTAINER_PORT)"
 
-.PHONY: oc build-standalone build lint lint-fix format-check format validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
+.PHONY: oc build-standalone build lint lint-fix format-check format type-check validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
 
 # Default target
 .DEFAULT_GOAL := help
