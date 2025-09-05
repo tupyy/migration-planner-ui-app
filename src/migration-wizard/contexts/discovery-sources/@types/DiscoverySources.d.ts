@@ -1,3 +1,10 @@
+import {
+  Agent,
+  Assessment,
+  Source,
+} from '@migration-planner-ui/api-client/models';
+
+
 declare namespace DiscoverySources {
   type Context = {
     sources: Source[];
@@ -61,11 +68,31 @@ declare namespace DiscoverySources {
     errorLoadingAssessments?: Error;
     listAssessments: () => Promise<Assessment[]>;
     createAssessment: (
-      sourceId: string,
+      name: string,
       sourceType: string,
-      name?: string,
+      jsonValue?: string,
+      sourceId?: string,
+      rvToolFile?: Blob,
     ) => Promise<Assessment>;
     isCreatingAssessment: boolean;
     errorCreatingAssessment?: Error;
+    deleteAssessment: (assessmentId: string) => Promise<Assessment>;
+    isDeletingAssessment: boolean;
+    errorDeletingAssessment?: Error;
+    updateAssessment: (
+      assessmentId: string,
+      name: string,
+    ) => Promise<Assessment>;
+    isUpdatingAssessment: boolean;
+    errorUpdatingAssessment?: Error;
+    shareAssessment: (
+      assessmentId: string,
+      shareData: { userId?: string; orgId?: string },
+    ) => Promise<void>;
+    isSharingAssessment: boolean;
+    errorSharingAssessment?: Error;
+    // Assessment from agent state
+    assessmentFromAgentState: boolean;
+    setAssessmentFromAgent: (value: boolean) => void;
   };
 }

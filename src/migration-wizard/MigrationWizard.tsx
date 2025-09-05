@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   useWizardContext,
@@ -15,8 +16,7 @@ import { Source } from '@migration-planner-ui/api-client/models';
 
 const openAssistedInstaller = (): void => {
   const currentHost = window.location.hostname;
-  
-  
+
   if (currentHost === 'console.stage.redhat.com') {
     console.log('Opening dev URL for stage environment');
     window.open(
@@ -38,63 +38,59 @@ type CustomWizardFooterPropType = {
   isBackDisabled?: boolean;
   nextButtonText?: string;
   onNext?: () => void;
+  onBack?: () => void;
+  isHidden?: boolean;
 };
 
 export const CustomWizardFooter: React.FC<CustomWizardFooterPropType> = ({
-  isCancelHidden,
   isBackDisabled,
-  isNextDisabled,
-  nextButtonText,
-  onNext,
+  onBack,
+  isHidden,
 }): JSX.Element => {
-  const { goToNextStep, goToPrevStep, goToStepById } = useWizardContext();
+  const { goToPrevStep } = useWizardContext();
+
+  if (isHidden) {
+    return <></>;
+  }
+
   return (
     <>
       <WizardFooterWrapper>
         <Button
           ouiaId="wizard-back-btn"
           variant="secondary"
-          onClick={goToPrevStep}
+          onClick={() => {
+            if (onBack) {
+              onBack();
+            } else {
+              goToPrevStep();
+            }
+          }}
           isDisabled={isBackDisabled}
         >
           Back
         </Button>
-        <Button
-          ouiaId="wizard-next-btn"
-          variant="primary"
-          onClick={() => {
-            if (onNext) {
-              onNext();
-            } else {
-              goToNextStep();
-            }
-          }}
-          isDisabled={isNextDisabled}
-        >
-          {nextButtonText ?? 'Next'}
-        </Button>
-        {!isCancelHidden && (
-          <Button
-            ouiaId="wizard-cancel-btn"
-            variant="link"
-            onClick={() => goToStepById('connect-step')}
-          >
-            Cancel
-          </Button>
-        )}
       </WizardFooterWrapper>
     </>
   );
 };
 
 export const MigrationWizard: React.FC = () => {
+  const navigate = useNavigate();
   const computedHeight = useComputedHeightFromPageHeader();
   const discoverSourcesContext = useDiscoverySources();
   const [firstSource, ..._otherSources] = discoverSourcesContext.sources ?? [];
   const [sourceSelected, setSourceSelected] = React.useState<Source>();
   const [isDiscoverySourceUpToDate, setIsDiscoverySourceUpToDate] =
     React.useState<boolean>(false);
-  const [activeStepId, setActiveStepId] = React.useState<string>('connect-step');
+  const [activeStepId, setActiveStepId] =
+    React.useState<string>('connect-step');
+
+  // Handle back navigation when coming from assessment page
+  const handleBackToAssessments = () => {
+    discoverSourcesContext.setAssessmentFromAgent(false);
+    navigate('/');
+  };
 
   useEffect(() => {
     if (discoverSourcesContext.sourceSelected) {
@@ -147,7 +143,7 @@ export const MigrationWizard: React.FC = () => {
             }
           : undefined
       }
-      onStepChange={(_event,step) => setActiveStepId(step.id as string)}
+      onStepChange={(_event, step) => setActiveStepId(step.id as string)}
     >
       <WizardStep
         name="Connect"
@@ -158,7 +154,13 @@ export const MigrationWizard: React.FC = () => {
             isNextDisabled={
               !isDiscoverySourceUpToDate || sourceSelected === null
             }
-            isBackDisabled={true}
+            isBackDisabled={!discoverSourcesContext.assessmentFromAgentState}
+            onBack={
+              discoverSourcesContext.assessmentFromAgentState
+                ? handleBackToAssessments
+                : undefined
+            }
+            isHidden={false}
           />
         }
       >
@@ -173,7 +175,7 @@ export const MigrationWizard: React.FC = () => {
         isDisabled={!isDiscoverySourceUpToDate || sourceSelected === null}
       >
         <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <DiscoveryStep />
+          <DiscoveryStep />
         </div>
       </WizardStep>
       <WizardStep
@@ -188,8 +190,8 @@ export const MigrationWizard: React.FC = () => {
         }
         isDisabled={!isDiscoverySourceUpToDate || sourceSelected === null}
       >
-         <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <PrepareMigrationStep />
+        <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <PrepareMigrationStep />
         </div>
       </WizardStep>
     </Wizard>

@@ -8,6 +8,7 @@ import { InvalidObject } from '@redhat-cloud-services/frontend-components/Invali
 import AssessmentDetailsPage from './pages/AssessmentDetailsPage';
 import MigrationAssessmentPage from './pages/MigrationAssessmentPage';
 import MigrationWizardPage from './pages/MigrationWizardPage';
+import { Provider as DiscoverySourcesProvider } from './migration-wizard/contexts/discovery-sources/Provider';
 
 interface RouteType {
   path?: string;
@@ -48,15 +49,17 @@ const Routing: React.FC = () => {
     ));
 
   return (
-    <Suspense
-      fallback={
-        <Bullseye>
-          <Spinner />
-        </Bullseye>
-      }
-    >
-      <RouterRoutes>{renderRoutes(routes)}</RouterRoutes>
-    </Suspense>
+    <DiscoverySourcesProvider>
+      <Suspense
+        fallback={
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
+        }
+      >
+        <RouterRoutes>{renderRoutes(routes)}</RouterRoutes>
+      </Suspense>
+    </DiscoverySourcesProvider>
   );
 };
 

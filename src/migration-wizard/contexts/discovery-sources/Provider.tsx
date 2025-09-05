@@ -21,8 +21,10 @@ import {
 import { useInjection } from '@migration-planner-ui/ioc';
 
 import { Symbols } from '../../../main/Symbols';
+import { assessmentService } from '../../../pages/assessment/assessmentService';
 
 import { Context } from './Context';
+import { DiscoverySources } from './@types/DiscoverySources';
 
 export const Provider: React.FC<PropsWithChildren> = (props) => {
   const { children } = props;
@@ -38,6 +40,11 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   >({});
 
   const [sourceCreatedId, setSourceCreatedId] = useState<string | null>(null);
+
+  // Indicate if the user wants to create an assessment from agent
+  // It is used by sourceTable to show Back button.
+  const [assessmentFromAgentState, setAssessmentFromAgent] =
+    useState<boolean>(false);
 
   const sourceApi = useInjection<SourceApiInterface>(Symbols.SourceApi);
   const agentsApi = useInjection<AgentApiInterface>(Symbols.AgentApi);
@@ -81,18 +88,72 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   });
 
   const [createAssessmentState, createAssessment] = useAsyncFn(
-    async (sourceId: string, sourceType: string, name?: string) => {
+    async (
+      name: string,
+      sourceType: string,
+      jsonValue?: string,
+      sourceId?: string,
+      rvToolFile?: Blob,
+    ) => {
       const assessmentName = name || `Assessment-${new Date().toISOString()}`;
-      const assessment = await assessmentApi.createAssessment({
-        assessmentForm: {
-          sourceId: sourceId,
-          name: assessmentName,
-          sourceType: sourceType,
+
+      // Create different request based on sourceType
+      if (sourceType === 'inventory' && jsonValue) {
+        const assessment = await assessmentApi.createAssessment({
+          assessmentForm: {
+            name: assessmentName,
+            sourceType: sourceType,
+            inventory:
+              typeof jsonValue === 'string' ? JSON.parse(jsonValue) : jsonValue,
+          },
+        });
+        await listAssessments();
+        return assessment;
+      } else if (sourceType === 'rvtools' && rvToolFile) {
+        const assessment = await assessmentService.createFromRVTools(
+          assessmentName,
+          rvToolFile,
+        );
+        await listAssessments();
+        return assessment;
+      } else if (sourceType === 'agent' && sourceId) {
+        const assessment = await assessmentApi.createAssessment({
+          assessmentForm: {
+            sourceId: sourceId,
+            name: assessmentName,
+            sourceType: sourceType,
+          },
+        });
+        await listAssessments();
+        return assessment;
+      } else {
+        throw new Error(
+          `Invalid parameters for assessment creation: ${sourceType}`,
+        );
+      }
+    },
+  );
+
+  const [updateAssessmentState, updateAssessment] = useAsyncFn(
+    async (assessmentId: string, name: string) => {
+      const updatedAssessment = await assessmentApi.updateAssessment({
+        id: assessmentId,
+        assessmentUpdate: {
+          name: name,
         },
       });
-      // Refresh the assessments list after creating a new one
       await listAssessments();
-      return assessment;
+      return updatedAssessment;
+    },
+  );
+
+  const [deleteAssessmentState, deleteAssessment] = useAsyncFn(
+    async (assessmentId: string) => {
+      const deletedAssessment = await assessmentApi.deleteAssessment({
+        id: assessmentId,
+      });
+      await listAssessments();
+      return deletedAssessment;
     },
   );
 
@@ -435,6 +496,19 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     createAssessment,
     isCreatingAssessment: createAssessmentState.loading,
     errorCreatingAssessment: createAssessmentState.error,
+    deleteAssessment: deleteAssessment,
+    isDeletingAssessment: deleteAssessmentState.loading,
+    errorDeletingAssessment: deleteAssessmentState.error,
+    updateAssessment: updateAssessment,
+    isUpdatingAssessment: updateAssessmentState.loading,
+    errorUpdatingAssessment: updateAssessmentState.error,
+    shareAssessment: async () => {
+      throw new Error('Not implemented');
+    },
+    isSharingAssessment: false,
+    errorSharingAssessment: undefined,
+    assessmentFromAgentState,
+    setAssessmentFromAgent,
   };
 
   return <Context.Provider value={ctx}>{children}</Context.Provider>;

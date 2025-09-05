@@ -5,22 +5,66 @@ import { EmptyState } from './empty-state/EmptyState';
 import { RemoveSourceAction } from './actions/RemoveSourceAction';
 import { Columns } from './Columns';
 import { DEFAULT_POLLING_DELAY, VALUE_NOT_AVAILABLE } from './Constants';
-import { Radio, Spinner } from '@patternfly/react-core';
-import { Link } from 'react-router-dom';
+import { Button, Radio, Spinner, Tooltip } from '@patternfly/react-core';
+import { PlusIcon, ArrowLeftIcon } from '@patternfly/react-icons';
+import { Link, useNavigate } from 'react-router-dom';
 import { Source } from '@migration-planner-ui/api-client/models';
 import { AgentStatusView } from './AgentStatusView';
 import { UploadInventoryAction } from './actions/UploadInventoryAction';
 import { DownloadOvaAction } from './actions/DownloadOvaAction';
+import { CreateAssessmentFromSourceModal } from './actions/CreateAssessmentFromSourceModal';
 import { useDiscoverySources } from '../../../contexts/discovery-sources/Context';
 
 export const SourcesTable: React.FC<{
   onUploadResult?: (message: string, isError?: boolean) => void;
   onUploadSuccess?: () => void;
 }> = ({ onUploadResult, onUploadSuccess }) => {
+  const navigate = useNavigate();
   const discoverySourcesContext = useDiscoverySources();
   const prevSourcesRef = useRef<typeof discoverySourcesContext.sources>([]);
   const [isLoading, setIsLoading] = useState(true);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showCreateAssessmentModal, setShowCreateAssessmentModal] =
+    useState(false);
+  const [selectedSourceForAssessment, setSelectedSourceForAssessment] =
+    useState<Source | null>(null);
+
+
+  // Handle back navigation from assessment creation
+  const handleBackToAssessments = () => {
+    discoverySourcesContext.setAssessmentFromAgent(false);
+    navigate('/');
+  };
+
+  const handleCreateAssessment = async (assessmentName: string) => {
+    if (!selectedSourceForAssessment) return;
+
+    try {
+      await discoverySourcesContext.createAssessment(
+        assessmentName,
+        'agent',
+        undefined,
+        selectedSourceForAssessment.id,
+      );
+      // Close modal and reset state
+      setShowCreateAssessmentModal(false);
+      setSelectedSourceForAssessment(null);
+      // Clear the assessmentFromAgent state if it was set
+      if (discoverySourcesContext.assessmentFromAgentState) {
+        discoverySourcesContext.setAssessmentFromAgent(false);
+      }
+      // Navigate to assessments page
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to create assessment:', error);
+      throw error; // Re-throw so modal can handle it
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowCreateAssessmentModal(false);
+    setSelectedSourceForAssessment(null);
+  };
 
   // Memorize ordered agents
   const memoizedSources = useMemo(() => {
@@ -43,11 +87,14 @@ export const SourcesTable: React.FC<{
       !areSourcesEquals(prevSourcesRef.current, discoverySourcesContext.sources)
     ) {
       prevSourcesRef.current = discoverySourcesContext.sources;
-      return discoverySourcesContext.sources
+      let sourcesToUse = discoverySourcesContext.sources
         ? discoverySourcesContext.sources.sort((a: Source, b: Source) =>
             a.id.localeCompare(b.id),
           )
         : [];
+
+
+      return sourcesToUse;
     }
     return prevSourcesRef.current;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,8 +156,20 @@ export const SourcesTable: React.FC<{
     );
   } else {
     return (
-      <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
-        <Table aria-label="Sources table" variant="compact" borders={false}>
+      <div>
+        {discoverySourcesContext.assessmentFromAgentState && (
+          <div style={{ marginBottom: '16px' }}>
+            <Button
+              variant="link"
+              icon={<ArrowLeftIcon />}
+              onClick={handleBackToAssessments}
+            >
+              Back to Assessments
+            </Button>
+          </div>
+        )}
+        <div style={{ maxHeight: '300px', overflowY: 'auto', overflowX: 'auto' }}>
+          <Table aria-label="Sources table" variant="compact" borders={false}>
           {memoizedSources && memoizedSources.length > 0 && (
             <Thead>
               <Tr>
@@ -209,44 +268,64 @@ export const SourcesTable: React.FC<{
                         VALUE_NOT_AVAILABLE}
                     </Td>
                     <Td dataLabel={Columns.Actions}>
-                      {source.name !== 'Example' && (
-                        <RemoveSourceAction
-                          sourceId={source.id}
-                          sourceName={source.name}
-                          isDisabled={discoverySourcesContext.isDeletingSource}
-                          onConfirm={async (event) => {
-                            event.stopPropagation();
-                            await discoverySourcesContext.deleteSource(
-                              source.id,
-                            );
-                            event.dismissConfirmationModal();
-                            await Promise.all([
-                              discoverySourcesContext.listSources(),
-                              firstSource &&
-                                discoverySourcesContext.selectSource(
-                                  firstSource,
-                                ),
-                            ]);
-                          }}
-                        />
-                      )}
-                      {(!source?.agent || source?.onPremises) &&
-                        source?.name !== 'Example' && (
-                          <UploadInventoryAction
+                      <>
+                        {agent && agent.status === 'up-to-date' && (
+                          <Tooltip content="Create Assessment">
+                            <Button
+                              variant="plain"
+                              size="sm"
+                              icon={<PlusIcon />}
+                              onClick={() => {
+                                setSelectedSourceForAssessment(source);
+                                setShowCreateAssessmentModal(true);
+                              }}
+                              aria-label="Create Assessment"
+                            />
+                          </Tooltip>
+                        )}
+                        {source.name !== 'Example' && (
+                          <RemoveSourceAction
                             sourceId={source.id}
-                            discoverySourcesContext={discoverySourcesContext}
-                            onUploadResult={(message, isError) => {
-                              onUploadResult?.(message, isError);
+                            sourceName={source.name}
+                            isDisabled={
+                              discoverySourcesContext.isDeletingSource
+                            }
+                            onConfirm={async (event) => {
+                              event.stopPropagation();
+                              await discoverySourcesContext.deleteSource(
+                                source.id,
+                              );
+                              event.dismissConfirmationModal();
+                              await Promise.all([
+                                discoverySourcesContext.listSources(),
+                                firstSource &&
+                                  discoverySourcesContext.selectSource(
+                                    firstSource,
+                                  ),
+                              ]);
                             }}
-                            onUploadSuccess={onUploadSuccess}
                           />
                         )}
-                      {source.name !== 'Example' && (
-                        <DownloadOvaAction
-                          sourceId={source.id}
-                          sourceName={source.name}
-                        />
-                      )}
+                        {(!source?.agent || source?.onPremises) &&
+                          source?.name !== 'Example' && (
+                            <UploadInventoryAction
+                              sourceId={source.id}
+                              discoverySourcesContext={
+                                discoverySourcesContext
+                              }
+                              onUploadResult={(message, isError) => {
+                                onUploadResult?.(message, isError);
+                              }}
+                              onUploadSuccess={onUploadSuccess}
+                            />
+                          )}
+                        {source.name !== 'Example' && (
+                          <DownloadOvaAction
+                            sourceId={source.id}
+                            sourceName={source.name}
+                          />
+                        )}
+                      </>
                     </Td>
                   </Tr>
                 );
@@ -260,6 +339,15 @@ export const SourcesTable: React.FC<{
             )}
           </Tbody>
         </Table>
+
+          <CreateAssessmentFromSourceModal
+            isOpen={showCreateAssessmentModal}
+            onClose={handleCloseModal}
+            onSubmit={handleCreateAssessment}
+            source={selectedSourceForAssessment}
+            isLoading={discoverySourcesContext.isCreatingAssessment}
+          />
+        </div>
       </div>
     );
   }

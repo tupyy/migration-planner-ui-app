@@ -26,6 +26,7 @@ import { TroubleshootingModal } from './TroubleshootingModal';
 
 export const ConnectStep: React.FC = () => {
   const discoverySourcesContext = useDiscoverySources();
+
   const [
     shouldShowDiscoverySourceSetupModal,
     setShouldShowDiscoverySetupModal,

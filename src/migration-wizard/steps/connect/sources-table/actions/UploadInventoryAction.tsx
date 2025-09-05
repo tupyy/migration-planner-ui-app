@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 
 import { Button, Icon, Tooltip } from '@patternfly/react-core';
 import { UploadIcon } from '@patternfly/react-icons';
+import { DiscoverySources } from '../../../../contexts/discovery-sources/@types/DiscoverySources';
 
 interface UploadInventoryProps {
   discoverySourcesContext: DiscoverySources.Context;
