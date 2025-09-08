@@ -73,8 +73,26 @@ type-check: install
 	@npx tsc --noEmit --project tsconfig.json
 	@echo "✅ TypeScript type checking passed!"
 
+# Security vulnerability scanning
+security-scan: install
+	@echo "🔒 Running security vulnerability scan..."
+	@npm audit --audit-level=moderate
+	@echo "✅ Security vulnerability scan completed!"
+
+# Fix security vulnerabilities
+security-fix: install
+	@echo "🔧 Fixing security vulnerabilities..."
+	@npm audit fix
+	@echo "✅ Security vulnerabilities fixed!"
+
+# Fix security vulnerabilities with breaking changes
+security-fix-force: install
+	@echo "🔧 Fixing security vulnerabilities (including breaking changes)..."
+	@npm audit fix --force
+	@echo "✅ All security vulnerabilities fixed!"
+
 # Combined format validation - runs both linting and format checks
-validate-all: lint format-check type-check
+validate-all: lint format-check type-check security-scan
 	@echo "✅ All validation checks passed!"
 
 # Build the container image
@@ -200,7 +218,10 @@ help:
 	@echo "  format-check        Check code formatting with Prettier"
 	@echo "  format              Format code with Prettier"
 	@echo "  type-check          TypeScript type checking"
-	@echo "  validate-all        Run all validation checks (lint + format-check + type-check)"
+	@echo "  security-scan       Run security vulnerability scan"
+	@echo "  security-fix        Fix security vulnerabilities"
+	@echo "  security-fix-force  Fix security vulnerabilities (including breaking changes)"
+	@echo "  validate-all        Run all validation checks (lint + format-check + type-check + security-scan)"
 	@echo ""
 	@echo "Container Management:"
 	@echo "  podman-build        Build the container image"
@@ -227,7 +248,7 @@ help:
 	@echo "  HOST_PORT=$(HOST_PORT)"
 	@echo "  CONTAINER_PORT=$(CONTAINER_PORT)"
 
-.PHONY: oc build-standalone build lint lint-fix format-check format type-check validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
+.PHONY: oc build-standalone build lint lint-fix format-check format type-check security-scan security-fix security-fix-force validate-all podman-build podman-tag-latest podman-run podman-stop podman-logs podman-status podman-clean podman-deploy podman-dev quay-login podman-push deploy-on-openshift delete-from-openshift help
 
 # Default target
 .DEFAULT_GOAL := help
