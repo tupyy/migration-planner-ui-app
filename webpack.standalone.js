@@ -139,6 +139,8 @@ module.exports = (env, argv) => {
           ? (process.env.PLANNER_API_BASE_URL || '')
           : '/planner'
       ),
+      'process.env.MIGRATION_PLANNER_UI_GIT_COMMIT': JSON.stringify(process.env.MIGRATION_PLANNER_UI_GIT_COMMIT),
+      'process.env.MIGRATION_PLANNER_UI_VERSION': JSON.stringify(process.env.MIGRATION_PLANNER_UI_VERSION),
     }),
   ],
 

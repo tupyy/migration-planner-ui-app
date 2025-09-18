@@ -5,5 +5,6 @@ declare namespace NodeJS {
     STANDALONE_MODE?: string;
     PLANNER_API_BASE_URL?: string;
     MIGRATION_PLANNER_UI_VERSION?: string;
+    MIGRATION_PLANNER_UI_GIT_COMMIT?: string;
   }
 }

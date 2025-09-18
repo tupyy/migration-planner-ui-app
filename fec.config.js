@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   appUrl: '/openshift/migration-assessment',
@@ -96,6 +97,17 @@ module.exports = {
       exclude: /node_modules\/(?!@migration-planner-ui)/
       
     });
+
+    // Add webpack DefinePlugin to inject version info and API config
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        'process.env.PLANNER_API_BASE_URL': JSON.stringify(
+          process.env.PLANNER_API_BASE_URL || '/api/migration-assessment'
+        ),
+        'process.env.MIGRATION_PLANNER_UI_GIT_COMMIT': JSON.stringify(process.env.MIGRATION_PLANNER_UI_GIT_COMMIT),
+        'process.env.MIGRATION_PLANNER_UI_VERSION': JSON.stringify(process.env.MIGRATION_PLANNER_UI_VERSION),
+      })
+    );
 
     return config;
   },

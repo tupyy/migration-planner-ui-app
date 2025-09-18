@@ -2,7 +2,6 @@
 DOCKER_CONF ?= $(CURDIR)/docker-config
 DOCKER_AUTH_FILE ?= ${DOCKER_CONF}/auth.json
 PODMAN ?= podman
-IMAGE_TAG ?= $(shell git rev-parse HEAD)
 REPLICAS ?= 1
 
 # Container runtime configuration
@@ -11,6 +10,11 @@ CONTAINER_PORT ?= 8080
 HOST_PORT ?= 8080
 CONTAINERFILE_PATH ?= deploy/dev/Containerfile
 CONTAINERIGNORE_PATH ?= deploy/dev/.containerignore
+
+SOURCE_GIT_COMMIT ?=$(shell git rev-parse "HEAD^{commit}" 2>/dev/null)
+SOURCE_GIT_COMMIT_SHORT ?=$(shell git rev-parse --short "HEAD^{commit}" 2>/dev/null)
+SOURCE_GIT_TAG ?=$(shell git describe --always --tags --abbrev=7 --match '[0-9]*\.[0-9]*\.[0-9]*' --match 'v[0-9]*\.[0-9]*\.[0-9]*' || echo 'v0.0.0-unknown-$(SOURCE_GIT_COMMIT_SHORT)')
+IMAGE_TAG ?= $(SOURCE_GIT_COMMIT)
 
 oc: # Verify oc installed, in linux install it if not already installed
 ifeq ($(OC_BIN),)
@@ -37,14 +41,28 @@ install:
 build-standalone: install
 	@echo "Building standalone application..."
 	rm -rf dist-standalone
-	npm run build:standalone
+	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
+	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
+	 npm run build:standalone
 	@echo "✅ Standalone build completed in dist-standalone/"
+
+# Run the standalone application locally
+run-standalone: install
+	@echo "Running standalone application..."
+	rm -rf dist-standalone
+	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
+	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
+	 PLANNER_LOCAL_DEV=true \
+	 npm run start:standalone
+	@echo "✅ Standalone run completed"
 
 # Legacy build target (federated module)
 build: install
 	@echo "Building federated module..."
 	rm -rf dist
-	npm run build
+	MIGRATION_PLANNER_UI_GIT_COMMIT=$(SOURCE_GIT_COMMIT) \
+	 MIGRATION_PLANNER_UI_VERSION=$(SOURCE_GIT_TAG) \
+	 npm run build
 	@echo "✅ Federated build completed in dist/"
 
 lint: install

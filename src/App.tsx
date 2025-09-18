@@ -12,6 +12,7 @@ import { Provider as DependencyInjectionProvider } from '@migration-planner-ui/i
 import { Spinner } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
+import { exposeVersionInfo } from './common/version';
 import { Symbols } from './main/Symbols';
 import { createAuthFetch } from './utils/authFetch';
 import Routing from './Routing';
@@ -38,6 +39,11 @@ const App: React.FC = () => {
 
       setContainer(c);
     };
+
+    // Expose version information for developers (async)
+    exposeVersionInfo().catch((error) => {
+      console.warn('Failed to expose version info:', error);
+    });
 
     configure();
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -3,8 +3,8 @@ import Humanize from 'humanize-plus';
 
 import type {
   Datastore,
-  Network,
   MigrationIssue,
+  Network,
   Source,
 } from '@migration-planner-ui/api-client/models';
 import {
