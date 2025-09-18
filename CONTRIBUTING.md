@@ -111,11 +111,11 @@ It includes:
 
 This is a React/TypeScript frontend application. To get started:
 
-1. **Install Dependencies:** Run `npm install` to install all required packages.
-2. **Start Development Server:** Run `npm start` for local development.
-3. **Run Tests:** Use `npm test` to run the test suite.
-4. **Build:** Use `npm run build` for production builds.
-5. **Standalone Build:** Use `npm run build:standalone` for standalone deployment.
+1. **Install Dependencies:** Run `make install` to install all required packages.
+2. **Start Development Server:** Run `make run-standalone` for local development.
+3. **Lint Code:** Use `make lint` to check code quality.
+4. **Build:** Use `make build` for production builds.
+5. **Standalone Build:** Use `make build-standalone` for standalone deployment.
 
 ### Additional Resources
 
