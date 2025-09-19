@@ -11,7 +11,7 @@ export interface CreateAssessmentRequest {
 export class AssessmentService {
   private baseUrl: string;
 
-  constructor(baseUrl = '/planner/api/v1') {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
@@ -133,5 +133,4 @@ export class AssessmentService {
   }
 }
 
-// Export a singleton instance
-export const assessmentService = new AssessmentService();
+// Note: Create instance with proper baseUrl from caller

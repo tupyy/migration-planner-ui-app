@@ -16,7 +16,7 @@ import {
 import { useInjection } from '@migration-planner-ui/ioc';
 
 import { Symbols } from '../../../main/Symbols';
-import { assessmentService } from '../../../pages/assessment/assessmentService';
+import { AssessmentService } from '../../../pages/assessment/assessmentService';
 
 import { DiscoverySources } from './@types/DiscoverySources';
 import { Context } from './Context';
@@ -47,6 +47,13 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const assessmentApi = useInjection<AssessmentApiInterface>(
     Symbols.AssessmentApi,
   );
+
+  // Create assessmentService instance with the same baseUrl as the injected APIs
+  const assessmentService = React.useMemo(() => {
+    const baseUrl =
+      process.env.PLANNER_API_BASE_URL || '/api/migration-assessment';
+    return new AssessmentService(baseUrl);
+  }, []);
 
   const [listAgentsState, listAgents] = useAsyncFn(async () => {
     if (!sourcesLoaded) return;
