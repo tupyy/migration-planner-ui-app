@@ -22,7 +22,7 @@ export class AssessmentService {
     name: string,
     inventory: Inventory,
   ): Promise<Assessment> {
-    const response = await fetch(`${this.baseUrl}/assessments`, {
+    const response = await fetch(`${this.baseUrl}/api/v1/assessments`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
