@@ -52,7 +52,7 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
   const assessmentService = React.useMemo(() => {
     const baseUrl =
       process.env.PLANNER_API_BASE_URL || '/api/migration-assessment';
-    return new AssessmentService(new URL('/api/v1', baseUrl).href);
+    return new AssessmentService(baseUrl);
   }, []);
 
   const [listAgentsState, listAgents] = useAsyncFn(async () => {
