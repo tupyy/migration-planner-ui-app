@@ -48,12 +48,14 @@ export const Provider: React.FC<PropsWithChildren> = (props) => {
     Symbols.AssessmentApi,
   );
 
-  // Create assessmentService instance with the same baseUrl as the injected APIs
+  // Create assessmentService instance with the same baseUrl and fetchApi as the injected APIs
   const assessmentService = React.useMemo(() => {
     const baseUrl =
       process.env.PLANNER_API_BASE_URL || '/api/migration-assessment';
-    return new AssessmentService(baseUrl);
-  }, []);
+    // Get the authenticated fetch function from the configuration of an existing API instance
+    const fetchApi = (assessmentApi as any).configuration?.fetchApi || fetch;
+    return new AssessmentService(baseUrl, fetchApi);
+  }, [assessmentApi]);
 
   const [listAgentsState, listAgents] = useAsyncFn(async () => {
     if (!sourcesLoaded) return;
