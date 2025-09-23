@@ -30,7 +30,7 @@ export class AssessmentService {
     });
     formData.append('file', blob, rvToolFile.name);
 
-    const response = await this.fetchApi(`${this.baseUrl}/assessments`, {
+    const response = await this.fetchApi(`${this.baseUrl}/api/v1/assessments`, {
       method: 'POST',
       // Let browser set Content-Type automatically with correct boundary
       body: formData,
