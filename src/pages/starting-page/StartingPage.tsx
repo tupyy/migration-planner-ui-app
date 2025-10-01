@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   Bullseye,
@@ -22,7 +23,9 @@ import { global_active_color_300 as globalActiveColor300 } from '@patternfly/rea
 
 import { CustomEnterpriseIcon } from '../../components/CustomEnterpriseIcon';
 
-const cards: React.ReactElement[] = [
+const createCards = (
+  navigate: ReturnType<typeof useNavigate>,
+): React.ReactElement[] => [
   <Card isFullHeight isPlain key="card-1">
     <CardHeader>
       <TextContent style={{ textAlign: 'center' }}>
@@ -48,9 +51,11 @@ const cards: React.ReactElement[] = [
         <Button
           size="sm"
           variant="link"
-          component="a"
-          href="/apps/assisted-migration-app/example_report.pdf"
-          download
+          onClick={() =>
+            navigate(
+              '/openshift/migration-assessment/assessments/example-report',
+            )
+          }
         >
           See an example report
         </Button>
@@ -100,6 +105,9 @@ const cards: React.ReactElement[] = [
 ];
 
 const StartingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const cards = createCards(navigate);
+
   return (
     <Bullseye>
       <Flex>
