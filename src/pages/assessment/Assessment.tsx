@@ -19,6 +19,7 @@ import { FilterIcon } from '@patternfly/react-icons';
 
 import { ConfirmationModal } from '../../components/ConfirmationModal';
 import { useDiscoverySources } from '../../migration-wizard/contexts/discovery-sources/Context';
+import StartingPageModal from '../starting-page/StartingPageModal';
 
 import AssessmentsTable from './AssessmentsTable';
 import CreateAssessmentModal, { AssessmentMode } from './CreateAssessmentModal';
@@ -48,10 +49,27 @@ const Assessment: React.FC<Props> = ({ assessments, isLoading }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedAssessment, setSelectedAssessment] =
     useState<AssessmentModel | null>(null);
+  const [isStartingPageModalOpen, setIsStartingPageModalOpen] = useState(false);
+  const hasShownStartingPageModal = React.useRef(false);
 
   // Multi-select filters (checkbox)
   const [selectedSourceTypes, setSelectedSourceTypes] = useState<string[]>([]);
   const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+
+  // Show the starting page modal only once on mount when there are no assessments.
+  // If the user has assessments, mark the modal as shown to prevent it from appearing
+  // after deleting the last assessment.
+  // hasShowStartingPageModal prevents the modal to pop up if the user deletes the last assessment.
+  React.useEffect(() => {
+    if (!isLoading) {
+      if (assessments.length === 0 && !hasShownStartingPageModal.current) {
+        setIsStartingPageModalOpen(true);
+        hasShownStartingPageModal.current = true;
+      } else if (assessments.length > 0) {
+        hasShownStartingPageModal.current = true;
+      }
+    }
+  }, [assessments.length, isLoading]);
 
   const toggleSourceType = (value: 'rvtools' | 'discovery'): void => {
     setSelectedSourceTypes((prev) =>
@@ -211,6 +229,12 @@ const Assessment: React.FC<Props> = ({ assessments, isLoading }) => {
 
   return (
     <>
+      <StartingPageModal
+        isOpen={isStartingPageModalOpen}
+        onClose={() => setIsStartingPageModalOpen(false)}
+        onOpenRVToolsModal={() => handleOpenModal('rvtools')}
+      />
+
       <div
         style={{
           background: 'white',
