@@ -7,6 +7,7 @@ import { InvalidObject } from '@redhat-cloud-services/frontend-components/Invali
 import { Provider as DiscoverySourcesProvider } from './migration-wizard/contexts/discovery-sources/Provider';
 import MigrationPage from './pages/MigrationPage';
 import MigrationWizardPage from './pages/MigrationWizardPage';
+import ExampleReport from './pages/report/ExampleReport';
 import Report from './pages/report/Report';
 
 interface RouteType {
@@ -47,6 +48,10 @@ const Routing: React.FC = () => {
     {
       path: '/assessments/:id/report',
       element: Report,
+    },
+    {
+      path: '/assessments/example-report',
+      element: ExampleReport,
     },
     {
       path: '/assessments/create',

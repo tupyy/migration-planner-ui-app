@@ -89,11 +89,17 @@ const EmptyTableBanner: React.FC<Props> = ({ onOpenModal }) => {
         </Card>
       </FlexItem>
       <FlexItem>
-        <a href="/apps/assisted-migration-app/example_report.pdf" download>
-          <Button size="sm" variant="link">
-            See an example report.
-          </Button>
-        </a>
+        <Button
+          size="sm"
+          variant="link"
+          onClick={() =>
+            navigate(
+              '/openshift/migration-assessment/assessments/example-report',
+            )
+          }
+        >
+          See an example report
+        </Button>
       </FlexItem>
       <FlexItem>
         <Dropdown
