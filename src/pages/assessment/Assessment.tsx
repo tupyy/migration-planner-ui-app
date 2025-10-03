@@ -529,6 +529,7 @@ const Assessment: React.FC<Props> = ({ assessments, isLoading }) => {
         onClose={handleCloseDeleteModal}
         onCancel={handleCloseDeleteModal}
         onConfirm={handleConfirmDelete}
+        isDisabled={discoverySourcesContext.isDeletingAssessment}
         title="Delete Assessment"
         titleIconVariant="warning"
         primaryButtonVariant="danger"
