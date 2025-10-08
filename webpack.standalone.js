@@ -149,7 +149,7 @@ module.exports = (env, argv) => {
   const devServerConfig = {
     port: 3000,
     historyApiFallback: true,
-    open: true,
+    open: ['/openshift/migration-assessment'],
     hot: true,
     compress: true,
   };
