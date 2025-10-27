@@ -38,12 +38,12 @@ const App: React.FC = () => {
       c.register(Symbols.AssessmentApi, new AssessmentApi(plannerApiConfig));
 
       setContainer(c);
-    };
 
-    // Expose version information for developers (async)
-    exposeVersionInfo().catch((error) => {
-      console.warn('Failed to expose version info:', error);
-    });
+      // Expose version information for developers (async) with authenticated fetch
+      exposeVersionInfo(authFetch).catch((error) => {
+        console.warn('Failed to expose version info:', error);
+      });
+    };
 
     configure();
     // eslint-disable-next-line react-hooks/exhaustive-deps

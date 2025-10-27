@@ -46,7 +46,7 @@ export const getGitCommit = () => {
 /**
  * Fetch API info from the migration-planner API info endpoint
  */
-const fetchApiInfo = async (): Promise<ApiInfo> => {
+const fetchApiInfo = async (customFetch?: typeof fetch): Promise<ApiInfo> => {
   if (apiInfoCache) {
     return apiInfoCache;
   }
@@ -54,6 +54,7 @@ const fetchApiInfo = async (): Promise<ApiInfo> => {
   try {
     const config = new Configuration({
       basePath: process.env.PLANNER_API_BASE_URL || '/api/migration-assessment',
+      fetchApi: customFetch,
     });
 
     const infoApi = new InfoApi(config);
@@ -139,16 +140,20 @@ export const addVersionInfoToDOM = (): void => {
 /**
  * Initialize API info by fetching from the migration-planner API
  */
-export const initializeApiInfo = async (): Promise<void> => {
-  await fetchApiInfo();
+export const initializeApiInfo = async (
+  customFetch?: typeof fetch,
+): Promise<void> => {
+  await fetchApiInfo(customFetch);
 };
 
 /**
  * Expose version information to window object and DOM for developer access
  */
-export const exposeVersionInfo = async (): Promise<void> => {
+export const exposeVersionInfo = async (
+  customFetch?: typeof fetch,
+): Promise<void> => {
   // Fetch API info first
-  await fetchApiInfo();
+  await fetchApiInfo(customFetch);
 
   const versionInfo = getVersionInfo();
 
