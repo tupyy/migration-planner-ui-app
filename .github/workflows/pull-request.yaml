@@ -9,6 +9,7 @@ on:
       - ready_for_review
     branches:
       - master
+      - 'release-**'
 
 env:
   NODE_OPTIONS: '--max-old-space-size=8192'
