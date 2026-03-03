@@ -27,7 +27,18 @@ import {
 import React, { useMemo, useState } from "react";
 
 import MigrationDonutChart from "../../../core/components/MigrationDonutChart";
-import { dashboardCard } from "./styles";
+import {
+  dashboardCard,
+  storageCardOverflowHidden,
+  storageCardOverflowVisible,
+  storageChartWrapper,
+  storageExportSectionMargin,
+  storageExportSectionTitle,
+  storageFlexFullWidth,
+  storageMenuToggleMinWidth,
+  storageNoDataContainer,
+  storageTotalsNote,
+} from "./styles";
 
 interface StorageOverviewProps {
   DiskSizeTierSummary: { [key: string]: DiskSizeTierSummary };
@@ -242,15 +253,14 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
 
   return (
     <Card
-      className={dashboardCard}
+      className={`${dashboardCard} ${isExportMode ? storageCardOverflowVisible : storageCardOverflowHidden}`}
       id="storage-overview"
-      style={{ overflow: isExportMode ? "visible" : "hidden" }}
     >
       <CardTitle>
         <Flex
           justifyContent={{ default: "justifyContentSpaceBetween" }}
           alignItems={{ default: "alignItemsCenter" }}
-          style={{ width: "100%" }}
+          className={storageFlexFullWidth}
         >
           <FlexItem>
             <i className="fas fa-database" /> Disks
@@ -266,7 +276,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     ref={toggleRef}
                     onClick={onDropdownToggle}
                     isExpanded={isDropdownOpen}
-                    style={{ minWidth: "250px" }}
+                    className={storageMenuToggleMinWidth}
                   >
                     {VIEW_MODE_LABELS[viewMode]}
                   </MenuToggle>
@@ -294,88 +304,74 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
       <CardBody>
         {!isExportMode || !exportAllViews ? (
           viewMode === "vmCountByDiskType" ? (
-            <>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-                <div style={{ width: `${barChartWidth + 200}px` }}>
-                  <Chart
-                    ariaTitle="VM count by disk type"
-                    ariaDesc="Vertical bar chart of VM counts grouped by disk type"
-                    theme={smallFontTheme}
-                    containerComponent={
-                      <ChartVoronoiContainer
-                        responsive
-                        labels={({ datum }) => {
-                          const safeDatum = datum as { x: string; y: number };
-                          return `${safeDatum.x}: ${Number(safeDatum.y)} VMs`;
+            diskTypeChartData.length === 0 ? (
+              <div className={storageNoDataContainer}>No Data Available</div>
+            ) : (
+              <>
+                <div className={storageChartWrapper}>
+                  <div style={{ width: `${barChartWidth + 200}px` }}>
+                    <Chart
+                      ariaTitle="VM count by disk type"
+                      ariaDesc="Vertical bar chart of VM counts grouped by disk type"
+                      theme={smallFontTheme}
+                      containerComponent={
+                        <ChartVoronoiContainer
+                          responsive
+                          labels={({ datum }) => {
+                            const safeDatum = datum as { x: string; y: number };
+                            return `${safeDatum.x}: ${Number(safeDatum.y)} VMs`;
+                          }}
+                          constrainToVisibleArea
+                          labelComponent={
+                            <ChartTooltip style={{ fontSize: 8 }} />
+                          }
+                        />
+                      }
+                      domain={{
+                        y: [0, maxDiskTypeCount],
+                      }}
+                      domainPadding={{ x: domainPaddingX }}
+                      padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
+                      height={isExportMode ? 180 : 250}
+                      width={barChartWidth}
+                    >
+                      <ChartAxis />
+                      <ChartAxis
+                        tickValues={diskTypeChartData.map((d) => d.name)}
+                        tickFormat={(x: string) => String(x)}
+                        style={{
+                          axis: { stroke: "none" },
+                          tickLabels: { fontSize: 8 },
                         }}
-                        constrainToVisibleArea
-                        labelComponent={
-                          <ChartTooltip style={{ fontSize: 8 }} />
-                        }
                       />
-                    }
-                    domain={{
-                      y: [0, maxDiskTypeCount],
-                    }}
-                    domainPadding={{ x: domainPaddingX }}
-                    padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
-                    height={isExportMode ? 180 : 220}
-                    width={barChartWidth}
-                  >
-                    <ChartAxis />
-                    <ChartAxis
-                      tickValues={diskTypeChartData.map((d) => d.name)}
-                      tickFormat={(x: string) => {
-                        const item = diskTypeChartData.find(
-                          (d) => d.name === x,
-                        );
-                        return item
-                          ? `${item.name} (${item.count} VMs)`
-                          : String(x);
-                      }}
-                      style={{
-                        axis: { stroke: "none" },
-                        tickLabels: { fontSize: 8 },
-                      }}
-                    />
-                    <ChartBar
-                      barWidth={computedBarWidth}
-                      data={diskTypeChartData.map((d) => ({
-                        x: d.name,
-                        y: d.count,
-                      }))}
-                      style={{
-                        data: {
-                          fill: ({ index }) =>
-                            diskTypeBarColors[
-                              (typeof index === "number" ? index : 0) %
-                                diskTypeBarColors.length
-                            ],
-                        },
-                        labels: { fontSize: 8 },
-                      }}
-                    />
-                  </Chart>
+                      <ChartBar
+                        barWidth={computedBarWidth}
+                        data={diskTypeChartData.map((d) => ({
+                          x: d.name,
+                          y: d.count,
+                        }))}
+                        style={{
+                          data: {
+                            fill: ({ index }) =>
+                              diskTypeBarColors[
+                                (typeof index === "number" ? index : 0) %
+                                  diskTypeBarColors.length
+                              ],
+                          },
+                          labels: { fontSize: 8 },
+                        }}
+                      />
+                    </Chart>
+                  </div>
                 </div>
-              </div>
-              {!isExportMode && (
-                <Content
-                  component="small"
-                  style={{
-                    color: "#6a6e73",
-                    marginLeft: "20px",
-                  }}
-                >
-                  Totals may exceed the unique VM count because individual VMs
-                  can have multiple disk types
-                </Content>
-              )}
-            </>
+                {!isExportMode && (
+                  <Content component="small" className={storageTotalsNote}>
+                    Totals may exceed the unique VM count because individual VMs
+                    can have multiple disk types
+                  </Content>
+                )}
+              </>
+            )
           ) : (
             <MigrationDonutChart
               data={chartData}
@@ -404,16 +400,11 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
           )
         ) : (
           <>
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+            <div className={storageExportSectionMargin}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["vmCountByDiskType"]}
               </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
+              <div className={storageChartWrapper}>
                 <div style={{ width: `${barChartWidth + 200}px` }}>
                   <Chart
                     ariaTitle="VM count by disk type"
@@ -437,7 +428,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                     }}
                     domainPadding={{ x: domainPaddingX }}
                     padding={{ top: 10, bottom: 36, left: 20, right: 20 }}
-                    height={180}
+                    height={isExportMode ? 180 : 250}
                     width={barChartWidth}
                   >
                     <ChartAxis />
@@ -477,8 +468,8 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
                 </div>
               </div>
             </div>
-            <div style={{ marginBottom: "24px" }}>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+            <div className={storageExportSectionMargin}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["vmCount"]}
               </div>
               <MigrationDonutChart
@@ -499,7 +490,7 @@ export const StorageOverview: React.FC<StorageOverviewProps> = ({
               />
             </div>
             <div>
-              <div style={{ fontWeight: 600, marginBottom: 8 }}>
+              <div className={storageExportSectionTitle}>
                 {VIEW_MODE_LABELS["totalSize"]}
               </div>
               <MigrationDonutChart
