@@ -26,6 +26,7 @@ objects:
             module: "./RootApp"
             routes:
               - pathname: /openshift/migration-assessment
+      feoConfigEnabled: true
 
 parameters:
   - name: ENV_NAME
