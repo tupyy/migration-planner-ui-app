@@ -62,7 +62,7 @@ const MigrationPage: React.FC<Props> = ({ initialTabKey }) => {
     <>
       <AppPage
         breadcrumbs={breadcrumbs}
-        title="Welcome, let's start your migration journey from VMware to OpenShift."
+        title="Welcome to your RHEL experience"
         caption={
           <Button
             variant="link"

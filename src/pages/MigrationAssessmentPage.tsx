@@ -223,7 +223,7 @@ const MigrationAssessmentPage: React.FC = () => (
         isActive: true,
       },
     ]}
-    title="Welcome, let's start your migration journey from VMware to OpenShift."
+    title="Welcome to your RHEL experience"
   >
     <MigrationAssessmentPageContent />
   </AppPage>

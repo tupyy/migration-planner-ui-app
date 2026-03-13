@@ -14,7 +14,7 @@ const MigrationWizardPage: React.FC = () => {
         },
         { key: 2, children: "Guide", isActive: true },
       ]}
-      title="Welcome, let's start your migration journey from VMware to OpenShift."
+      title="Welcome to your RHEL experience"
     >
       <MigrationWizard />
     </AppPage>
